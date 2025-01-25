@@ -1,13 +1,11 @@
-﻿using Intererpreter;
-
-namespace Interpreter;
+﻿namespace Interpreter;
 
 public class Program
 {
     private static bool hadError = false;
     public static void Main(string[] args)
     {
-        if (args.Length > 1)
+        /*if (args.Length > 1)
         {
             Console.WriteLine("Usage: interpreter [script]");
             Environment.Exit(64);
@@ -19,7 +17,18 @@ public class Program
         else
         {
             RunPrompt();
-        }
+        }*/
+
+        var expr = new Binary(
+            new Unary(
+                new Token(TokenType.MINUS, "-", null, 1),
+                new Literal(123)
+            ),
+            new Token(TokenType.STAR, "*", null, 1),
+            new Grouping(new Literal(45.67))
+        );
+
+        Console.WriteLine(new AstPrinter().Print(expr));
     }
 
     public static void RunFile(string path)

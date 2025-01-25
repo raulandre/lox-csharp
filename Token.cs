@@ -1,4 +1,4 @@
-namespace Intererpreter;
+namespace Interpreter;
 
 public class Token
 {
@@ -17,6 +17,6 @@ public class Token
 
     public override string ToString()
     {
-        return $"{Type} {Lexeme} {Literal}";
+        return $"{Type} \"{Lexeme}\" {Literal}";
     }
 }

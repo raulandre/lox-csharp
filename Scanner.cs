@@ -1,4 +1,4 @@
-namespace Intererpreter;
+namespace Interpreter;
 
 public class Scanner
 {
