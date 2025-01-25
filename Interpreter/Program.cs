@@ -5,7 +5,7 @@ public class Program
     private static bool hadError = false;
     public static void Main(string[] args)
     {
-        /*if (args.Length > 1)
+        if (args.Length > 1)
         {
             Console.WriteLine("Usage: interpreter [script]");
             Environment.Exit(64);
@@ -17,18 +17,7 @@ public class Program
         else
         {
             RunPrompt();
-        }*/
-
-        var expr = new Binary(
-            new Unary(
-                new Token(TokenType.MINUS, "-", null, 1),
-                new Literal(123)
-            ),
-            new Token(TokenType.STAR, "*", null, 1),
-            new Grouping(new Literal(45.67))
-        );
-
-        Console.WriteLine(new AstPrinter().Print(expr));
+        }
     }
 
     public static void RunFile(string path)
@@ -57,15 +46,29 @@ public class Program
         var scanner = new Scanner(source);
         var tokens = scanner.ScanTokens();
 
-        foreach (var token in tokens)
-        {
-            Console.WriteLine(token);
-        }
+        var parser = new Parser(tokens);
+        var expr = parser.Parse();
+
+        if(hadError) return;
+
+        Console.WriteLine(new AstPrinter().Print(expr));
     }
 
     public static void Error(int line, string message)
     {
         Report(line, "", message);
+    }
+
+    public static void Error(Token token, string message)
+    {
+        if(token.Type == TokenType.EOF)
+        {
+            Report(token.Line, "at end", message);
+        }
+        else
+            {
+                Report(token.Line, $"at '{token.Lexeme}'", message);
+            }
     }
 
     private static void Report(int line, string where, string message)

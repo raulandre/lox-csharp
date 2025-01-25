@@ -7,7 +7,6 @@ public class AstPrinter : Visitor<string>
         return expr.Accept(this);
     }
 
-
     public string VisitBinaryExpr(Binary expr)
     {
         return Parenthesize(expr.Op.Lexeme, expr.Left, expr.Right);
