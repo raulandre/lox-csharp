@@ -20,6 +20,7 @@ public class AstPrinter : Visitor<string>
     public string VisitLiteralExpr(Literal expr)
     {
         if(expr.Value == null) return "nil";
+        if(expr.Value is string) return $"\"{expr.Value}\"";
         return expr.Value.ToString();
     }
 

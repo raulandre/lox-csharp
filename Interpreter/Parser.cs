@@ -2,12 +2,12 @@ namespace Interpreter;
 
 public class Parser
 {
-    private List<Token> Tokens;
-    private int Current = 0;
+    private List<Token> tokens;
+    private int current = 0;
 
     public Parser(List<Token> tokens)
     {
-        Tokens = tokens;
+        this.tokens = tokens;
     }
 
     public Expr Parse()
@@ -169,7 +169,7 @@ public class Parser
 
     private Token Advance()
     {
-        if(!IsAtEnd()) Current++;
+        if(!IsAtEnd()) current++;
         return Previous();
     }
 
@@ -180,11 +180,11 @@ public class Parser
 
     private Token Peek()
     {
-        return Tokens.ElementAt(Current);
+        return tokens.ElementAt(current);
     }
 
     private Token Previous()
     {
-        return Tokens.ElementAt(Current - 1);
+        return tokens.ElementAt(current - 1);
     }
 }
