@@ -128,7 +128,13 @@ public class Interpreter : Visitor<object>
 
     private void CheckNumberOperands(Token op, object left, object right)
     {
-        if (left is double && right is double) return;
+        if (left is double && right is double)
+        {
+            // Should we use an epsilon here?
+            if((double)right != 0) return;
+
+            throw new RuntimeException(op, "Division by zero is not allowed.");
+        }
         throw new RuntimeException(op, "Operands must be numbers.");
     }
 
