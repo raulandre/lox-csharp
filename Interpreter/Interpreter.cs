@@ -130,10 +130,13 @@ public class Interpreter : Visitor<object>
     {
         if (left is double && right is double)
         {
-            // Should we use an epsilon here?
-            if((double)right != 0) return;
+	    if(op.Type == TokenType.SLASH) {
+            	if((double)right != 0) return;
 
-            throw new RuntimeException(op, "Division by zero is not allowed.");
+            	throw new RuntimeException(op, "Division by zero is not allowed.");
+	    };
+	    
+            return;	
         }
         throw new RuntimeException(op, "Operands must be numbers.");
     }
