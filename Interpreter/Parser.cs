@@ -10,21 +10,105 @@ public class Parser
         this.tokens = tokens;
     }
 
-    public Expr Parse()
+    public List<Stmt> Parse()
+    {
+        var statements = new List<Stmt>();
+
+        while (!IsAtEnd())
+        {
+            statements.Add(Declaration());
+        }
+
+        return statements;
+    }
+
+    private Stmt Declaration()
     {
         try
         {
-            return Expression();
+            if(Match(TokenType.VAR)) return VarDeclaration();
+            return Statement();
         }
         catch(ParseException)
         {
+            Synchronize();
             return null;
         }
     }
 
+    private Stmt VarDeclaration()
+    {
+        var name = Consume(TokenType.IDENTIFIER, "Expected variable name.");
+
+        Expr initializer = null;
+        if(Match(TokenType.EQUAL))
+        {
+            initializer = Expression();
+        }
+
+        Consume(TokenType.SEMICOLON, "Expected ';' after variable declaration.");
+        return new Var(name, initializer);
+    }
+
+    private Stmt Statement()
+    {
+        if (Match(TokenType.PRINT)) return PrintStmt();
+        if (Match(TokenType.LEFT_BRACE)) return new Block(Block());
+
+        return ExpressionStmt();
+    }
+
+    private List<Stmt> Block()
+    {
+        var statements = new List<Stmt>();
+
+        while(!Check(TokenType.RIGHT_BRACE) && !IsAtEnd())
+        {
+            statements.Add(Declaration());
+        }
+
+        Consume(TokenType.RIGHT_BRACE, "Expected '}' after block.");
+        return statements;
+    }
+
+    private Stmt PrintStmt()
+    {
+        var value = Expression();
+        Consume(TokenType.SEMICOLON, "Expected ';' after expression.");
+        return new Print(value);
+    }
+
+    private Stmt ExpressionStmt()
+    {
+        var expr = Expression();
+        Consume(TokenType.SEMICOLON, "Expected ';' after expression.");
+        return new Expression(expr);
+    }
+
     private Expr Expression()
     {
-        return Equality();
+        return Assignment();
+    }
+
+    private Expr Assignment()
+    {
+        var expr = Equality();
+
+        if(Match(TokenType.EQUAL))
+        {
+            var eq = Previous();
+            var value = Assignment();
+
+            if(expr is Variable)
+            {
+                var name = (expr as Variable)?.Name;
+                return new Assign(name, value);
+            }
+
+            Error(eq, "Invalid assignment target.");
+        }
+
+        return expr;
     }
 
     private Expr Equality()
@@ -81,7 +165,7 @@ public class Parser
 
     private Expr Unary()
     {
-        if(Match(TokenType.BANG, TokenType.MINUS))
+        if(Match(TokenType.BANG, TokenType.MINUS, TokenType.PLUS))
         {
             var op = Previous();
             var right = Unary();
@@ -100,6 +184,11 @@ public class Parser
         if(Match(TokenType.NUMBER, TokenType.STRING))
         {
             return new Literal(Previous().Literal);
+        }
+
+        if(Match(TokenType.IDENTIFIER))
+        {
+            return new Variable(Previous());
         }
 
         if(Match(TokenType.LEFT_PAREN))

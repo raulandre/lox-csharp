@@ -1,18 +1,88 @@
 namespace Interpreter;
 
-public class Interpreter : Visitor<object>
+public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
 {
-    public void Interpret(Expr expr)
+    private Env environment = new();
+
+    public void Interpret(List<Stmt> statements)
     {
         try
         {
-            var value = Eval(expr);
-            Console.WriteLine(Stringify(value));
+            foreach(var stmt in statements)
+            {
+                Execute(stmt);
+            }
         }
         catch (RuntimeException ex)
         {
             Program.RuntimeError(ex);
         }
+    }
+
+    private void Execute(Stmt stmt)
+    {
+        stmt.Accept(this);
+    }
+
+    private void ExecuteBlock(List<Stmt> statements, Env environment)
+    {
+        var previousEnv = this.environment;
+        try
+        {
+            this.environment = environment;
+
+            foreach(var stmt in statements)
+                Execute(stmt);
+
+        }
+        finally
+        {
+            this.environment = previousEnv;
+        }
+    }
+
+    public object VisitBlockStmt(Block stmt)
+    {
+        ExecuteBlock(stmt.Statements, new Env(environment));
+        return null;
+    }
+
+    public object VisitAssignExpr(Assign expr)
+    {
+        var value = Eval(expr.Value);
+        environment.Assign(expr.Name, value);
+        return value;
+    }
+
+    public object VisitVariableExpr(Variable expr)
+    {
+        return environment.Get(expr.Name);
+    }
+
+    public object VisitVarStmt(Var stmt)
+    {
+        object value = null;
+        if(stmt.Initializer != null)
+        {
+            value = Eval(stmt.Initializer);
+        }
+
+        environment.Define(stmt.Name.Lexeme, value);
+        return null;
+    }
+
+    public object VisitExpressionStmt(Expression stmt)
+    {
+        var value = Eval(stmt.Expr);
+        Console.WriteLine(Stringify(value));
+        return null;
+    }
+
+    public object VisitPrintStmt(Print stmt)
+    {
+        var value = Eval(stmt.Expr);
+        Console.WriteLine(Stringify(value));
+        return null;
     }
 
     public object VisitLiteralExpr(Literal expr)
@@ -36,6 +106,9 @@ public class Interpreter : Visitor<object>
             case TokenType.MINUS:
                 CheckNumberOperand(expr.Op, right);
                 return -(double)right;
+            case TokenType.PLUS:
+                CheckNumberOperand(expr.Op, right);
+                return +(double)right;
         }
 
         return null;
@@ -139,6 +212,7 @@ public class Interpreter : Visitor<object>
 
             return;
         }
+
         throw new RuntimeException(op, "Operands must be numbers.");
     }
 

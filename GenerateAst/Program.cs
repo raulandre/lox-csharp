@@ -15,10 +15,19 @@ public static class Program
         var outputDir = args.First();
 
         DefineAst(outputDir, "Expr", new List<string>() {
+            "Assign: Token name, Expr value",
             "Binary: Expr left, Token op, Expr right",
             "Grouping: Expr expression",
             "Literal: object value",
-            "Unary: Token op, Expr right"
+            "Unary: Token op, Expr right",
+            "Variable: Token name"
+        });
+
+        DefineAst(outputDir, "Stmt", new List<string>() {
+                "Block: List<Stmt> statements",
+                "Expression: Expr expr",
+                "Print: Expr expr",
+                "Var: Token name, Expr initializer"
         });
     }
 
@@ -39,7 +48,7 @@ public static class Program
 
             namespace Interpreter;
 
-            public interface Visitor<T>
+            public interface {baseName}Visitor<T>
             {{
                 {string.Join('\n',
                     types.Select(type =>
@@ -51,7 +60,7 @@ public static class Program
 
             public abstract class {baseName}
             {{
-                public abstract T Accept<T>(Visitor<T> visitor);
+                    public abstract T Accept<T>({baseName}Visitor<T> visitor);
             }};
 
             {string.Join('\n', definedTypes)}
@@ -75,7 +84,7 @@ public static class Program
                         $"{CultureInfo.CurrentCulture.TextInfo.ToTitleCase(field.Split(" ")[1])} = {field.Split(" ")[1]};"))}
                 }}
 
-                public override T Accept<T>(Visitor<T> visitor)
+public override T Accept<T>({baseName}Visitor<T> visitor)
                 {{
                     return visitor.Visit{className}{baseName}(this);
                 }}

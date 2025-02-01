@@ -1,6 +1,6 @@
-namespace Interpreter;
+/*namespace Interpreter;
 
-public class AstPrinter : Visitor<string>
+public class AstPrinter : ExprVisitor<string>
 {
     public string Print(Expr expr)
     {
@@ -35,3 +35,4 @@ public class AstPrinter : Visitor<string>
         return $"({name} {content})";
     }
 }
+*/

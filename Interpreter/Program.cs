@@ -52,13 +52,11 @@ public class Program
         var tokens = scanner.ScanTokens();
 
         var parser = new Parser(tokens);
-        var expr = parser.Parse();
+        var statements = parser.Parse();
 
         if (hadError) return;
 
-        interpreter.Interpret(expr);
-
-        Console.WriteLine(new AstPrinter().Print(expr));
+        interpreter.Interpret(statements);
     }
 
     public static void Error(int line, string message)
