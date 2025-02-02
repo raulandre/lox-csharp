@@ -10,6 +10,7 @@ public interface StmtVisitor<T>
     public T VisitPrintStmt(Print stmt);
     public T VisitWhileStmt(While stmt);
     public T VisitVarStmt(Var stmt);
+    public T VisitBreakStmt(Break stmt);
 }
 
 public abstract class Stmt
@@ -118,5 +119,21 @@ public class Var : Stmt
     public override T Accept<T>(StmtVisitor<T> visitor)
     {
         return visitor.VisitVarStmt(this);
+    }
+}
+
+
+public class Break : Stmt
+{
+    public Token Token { get; private set; }
+
+    public Break(Token token)
+    {
+        Token = token;
+    }
+
+    public override T Accept<T>(StmtVisitor<T> visitor)
+    {
+        return visitor.VisitBreakStmt(this);
     }
 }

@@ -30,7 +30,8 @@ public static class Program
             "If: Expr condition, Stmt thenBranch, Stmt elseBranch",
             "Print: Expr expr",
             "While: Expr condition, Stmt body",
-            "Var: Token name, Expr initializer"
+            "Var: Token name, Expr initializer",
+            "Break: Token token"
         });
     }
 

@@ -1,9 +1,10 @@
 var f = 1;
-var n = 5;
+var n = 10;
 
-for(var i = n; i > 1; i = i - 1)
+for(var i = n; i >= -1; i = i - 1)
 {
-    f = f * i;
-}
+    if(i == 0)
+         break;
 
-print(f);
+    print(i);
+}

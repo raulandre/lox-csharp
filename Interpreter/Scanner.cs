@@ -30,6 +30,7 @@ public class Scanner
         keywords.Add("true", TokenType.TRUE);
         keywords.Add("var", TokenType.VAR);
         keywords.Add("while", TokenType.WHILE);
+        keywords.Add("break", TokenType.BREAK);
     }
 
     public List<Token> ScanTokens() 

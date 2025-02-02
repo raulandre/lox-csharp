@@ -54,11 +54,19 @@ public class Parser
     {
         if (Match(TokenType.FOR)) return ForStmt();
         if (Match(TokenType.IF)) return IfStmt();
+        if (Match(TokenType.BREAK)) return BreakStmt();
         if (Match(TokenType.PRINT)) return PrintStmt();
         if (Match(TokenType.WHILE)) return WhileStmt();
         if (Match(TokenType.LEFT_BRACE)) return new Block(Block());
 
         return ExpressionStmt();
+    }
+
+    private Stmt BreakStmt()
+    {
+        var token = Previous();
+        Consume(TokenType.SEMICOLON, "Expected ';' after 'break' statement.");
+        return new Break(token);
     }
 
     private Stmt ForStmt()

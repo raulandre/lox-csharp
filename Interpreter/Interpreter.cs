@@ -41,18 +41,31 @@ public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
         }
     }
 
+    public object VisitBreakStmt(Break stmt)
+    {
+        throw new RuntimeException(stmt.Token, "Break statement raised outside loop.");
+    }
+
     public object VisitWhileStmt(While stmt)
     {
-        while(IsTruthy(Eval(stmt.Condition)))
+        try
         {
-            Execute(stmt.Body);
+            while (IsTruthy(Eval(stmt.Condition)))
+            {
+                Execute(stmt.Body);
+            }
         }
+        catch(RuntimeException ex) when (ex.Token.Type == TokenType.BREAK)
+        {
+            return null;
+        }
+
         return null;
     }
 
     public object VisitIfStmt(If stmt)
     {
-        if(IsTruthy(stmt.Condition))
+        if(IsTruthy(Eval(stmt.Condition)))
         {
             Execute(stmt.Thenbranch);
         }
@@ -219,7 +232,6 @@ public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
     {
         if (obj is null) return false;
         if (obj is bool) return (bool)obj;
-        if (obj is double && (double)obj == 0) return false;
 
         return true;
     }
