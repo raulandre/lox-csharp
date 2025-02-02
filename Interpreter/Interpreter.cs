@@ -41,6 +41,46 @@ public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
         }
     }
 
+    public object VisitWhileStmt(While stmt)
+    {
+        while(IsTruthy(Eval(stmt.Condition)))
+        {
+            Execute(stmt.Body);
+        }
+        return null;
+    }
+
+    public object VisitIfStmt(If stmt)
+    {
+        if(IsTruthy(stmt.Condition))
+        {
+            Execute(stmt.Thenbranch);
+        }
+        else if(stmt.Elsebranch != null)
+        {
+            Execute(stmt.Elsebranch);
+        }
+
+        return null;
+    }
+
+    public object VisitLogicalExpr(Logical expr)
+    {
+        var left = Eval(expr.Left);
+
+        // Try to short-circuit if possible
+        if(expr.Op.Type == TokenType.OR)
+        {
+            if (IsTruthy(left)) return left;
+        }
+        else
+        {
+            if (!IsTruthy(left)) return left;
+        }
+
+        return Eval(expr.Right);
+    }
+
     public object VisitBlockStmt(Block stmt)
     {
         ExecuteBlock(stmt.Statements, new Env(environment));
@@ -74,7 +114,6 @@ public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
     public object VisitExpressionStmt(Expression stmt)
     {
         var value = Eval(stmt.Expr);
-        Console.WriteLine(Stringify(value));
         return null;
     }
 
