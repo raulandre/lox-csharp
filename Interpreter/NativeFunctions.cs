@@ -53,7 +53,7 @@ public class PrintFn : ICallable
     {
         var str = args.First().ToString();
         Console.WriteLine(str);
-        return str.Length;
+        return null;
     }
 
     public override string ToString()
