@@ -30,7 +30,6 @@ public static class Program
             "Expression: Expr expr",
             "Function: Token name, List<Token> parameters, List<Stmt> body",
             "If: Expr condition, Stmt thenBranch, Stmt elseBranch",
-            "Print: Expr expr",
             "While: Expr condition, Stmt body",
             "Var: Token name, Expr initializer",
             "Break: Token token"

@@ -1,7 +1,20 @@
-fun greet(first, last)
+fun sum(n)
 {
-    print("Hello, " + first + " " + last + "!");
+    var start = clock();
+
+    var res = 0;
+    for(var i = 1; i <= n; i = i + 1)
+    {
+        res = res + i;
+    }
+
+    var end = clock();
+
+    print("Sum 1.." + n + " = " + res + "    Time in ms: " + (end - start));
 }
 
-print(greet);
-greet("John", "Lennon");
+print("Please enter a number: ");
+var n = number(read());
+sum(n);
+
+exit(0);

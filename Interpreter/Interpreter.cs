@@ -9,7 +9,11 @@ public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
     {
         environment = globals;
 
-        globals.Define("Clock", new ClockFn());
+        globals.Define("clock", new ClockFn());
+        globals.Define("print", new PrintFn());
+        globals.Define("read", new ReadFn());
+        globals.Define("exit", new ExitFn());
+        globals.Define("number", new NumberFn());
     }
 
     public void Interpret(List<Stmt> statements)
@@ -163,13 +167,6 @@ public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
         return null;
     }
 
-    public object VisitPrintStmt(Print stmt)
-    {
-        var value = Eval(stmt.Expr);
-        Console.WriteLine(Stringify(value));
-        return null;
-    }
-
     public object VisitLiteralExpr(Literal expr)
     {
         return expr.Value;
@@ -224,13 +221,9 @@ public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
                 {
                     return (string)left + (string)right;
                 }
-                else if (left is string)
+                else if (left is string || right is string)
                 {
-                    return (string)left + right.ToString();
-                }
-                else if (right is string)
-                {
-                    return left.ToString() + (string)right;
+                    return left.ToString() + right.ToString();
                 }
 
                 throw new RuntimeException(expr.Op, "Operands must be two numbers or two strings.");

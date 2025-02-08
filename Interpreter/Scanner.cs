@@ -23,7 +23,6 @@ public class Scanner
         keywords.Add("if", TokenType.IF);
         keywords.Add("nil", TokenType.NIL);
         keywords.Add("or", TokenType.OR);
-        keywords.Add("print", TokenType.PRINT);
         keywords.Add("return", TokenType.RETURN);
         keywords.Add("super", TokenType.SUPER);
         keywords.Add("this", TokenType.THIS);

@@ -36,7 +36,79 @@ public class ClockFn : ICallable
 
     public object Call(Interpreter interpreter, List<object> args)
     {
-        return (DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond);
+        return (double)(DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond);
+    }
+
+    public override string ToString()
+    {
+        return "<native fn>";
+    }
+}
+
+public class PrintFn : ICallable
+{
+    public int Arity() => 1;
+
+    public object Call(Interpreter interpreter, List<object> args)
+    {
+        var str = args.First().ToString();
+        Console.WriteLine(str);
+        return str.Length;
+    }
+
+    public override string ToString()
+    {
+        return "<native fn>";
+    }
+}
+
+public class ReadFn : ICallable
+{
+    public int Arity() => 0;
+
+    public object Call(Interpreter interpreter, List<object> args)
+    {
+        return Console.ReadLine();
+    }
+
+    public override string ToString()
+    {
+        return "<native fn>";
+    }
+}
+
+public class ExitFn : ICallable
+{
+    public int Arity() => 1;
+
+    public object Call(Interpreter interpreter, List<object> args)
+    {
+        var code = Convert.ToInt32((double)args.First());
+        Environment.Exit(code);
+        return null;
+    }
+
+    public override string ToString()
+    {
+        return "<native fn>";
+    }
+}
+
+public class NumberFn : ICallable
+{
+    public int Arity() => 1;
+
+    public object Call(Interpreter interpreter, List<object> args)
+    {
+        var str = args.First() as string;
+
+
+        if (str == null) return str;
+
+        if (!double.TryParse(str, out var parsed))
+            return null;
+
+        return parsed;
     }
 
     public override string ToString()

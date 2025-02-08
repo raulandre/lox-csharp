@@ -56,7 +56,6 @@ public class Parser
         if (Match(TokenType.FOR)) return ForStmt();
         if (Match(TokenType.IF)) return IfStmt();
         if (Match(TokenType.BREAK)) return BreakStmt();
-        if (Match(TokenType.PRINT)) return PrintStmt();
         if (Match(TokenType.WHILE)) return WhileStmt();
         if (Match(TokenType.LEFT_BRACE)) return new Block(Block());
 
@@ -188,13 +187,6 @@ public class Parser
 
         Consume(TokenType.RIGHT_BRACE, "Expected '}' after block.");
         return statements;
-    }
-
-    private Stmt PrintStmt()
-    {
-        var value = Expression();
-        Consume(TokenType.SEMICOLON, "Expected ';' after expression.");
-        return new Print(value);
     }
 
     private Stmt ExpressionStmt()
@@ -421,7 +413,6 @@ public class Parser
                 case TokenType.FOR:
                 case TokenType.FUN:
                 case TokenType.IF:
-                case TokenType.PRINT:
                 case TokenType.RETURN:
                 case TokenType.VAR:
                 case TokenType.WHILE:

@@ -9,7 +9,6 @@ namespace Interpreter;
     public T VisitExpressionStmt(Expression stmt);
     public T VisitFunctionStmt(Function stmt);
     public T VisitIfStmt(If stmt);
-    public T VisitPrintStmt(Print stmt);
     public T VisitWhileStmt(While stmt);
     public T VisitVarStmt(Var stmt);
     public T VisitBreakStmt(Break stmt);
@@ -89,22 +88,6 @@ public class If : Stmt
     public override T Accept<T>(StmtVisitor<T> visitor)
     {
         return visitor.VisitIfStmt(this);
-    }
-}
-
-
-public class Print : Stmt
-{
-    public Expr Expr { get; private set; }
-
-    public Print(Expr expr)
-    {
-        Expr = expr;
-    }
-
-    public override T Accept<T>(StmtVisitor<T> visitor)
-    {
-        return visitor.VisitPrintStmt(this);
     }
 }
 
