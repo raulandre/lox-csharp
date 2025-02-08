@@ -3,15 +3,17 @@ namespace Interpreter;
 public class LoxFunction : ICallable
 {
     private Function Declaration;
+    private Env Closure;
 
-    public LoxFunction(Function declaration)
+    public LoxFunction(Function declaration, Env closure)
     {
         Declaration = declaration;
+        Closure = closure;
     }
 
     public object Call(Interpreter interpreter, List<object> args)
     {
-        var env = new Env(interpreter.globals);
+        var env = new Env(Closure);
 
         for (int i = 0; i < Declaration.Parameters.Count; i++)
         {
