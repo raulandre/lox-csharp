@@ -56,10 +56,23 @@ public class Parser
         if (Match(TokenType.FOR)) return ForStmt();
         if (Match(TokenType.IF)) return IfStmt();
         if (Match(TokenType.BREAK)) return BreakStmt();
+        if (Match(TokenType.RETURN)) return ReturnStmt();
         if (Match(TokenType.WHILE)) return WhileStmt();
         if (Match(TokenType.LEFT_BRACE)) return new Block(Block());
 
         return ExpressionStmt();
+    }
+
+    private Stmt ReturnStmt()
+    {
+        var keyword = Previous();
+        Expr value = null;
+
+        if(!Check(TokenType.SEMICOLON))
+            value = Expression();
+
+        Consume(TokenType.SEMICOLON, "Expected ';' after return value.");
+        return new Return(keyword, value);
     }
 
     private Function Function(string kind)

@@ -18,7 +18,15 @@ public class LoxFunction : ICallable
             env.Define(Declaration.Parameters[i].Lexeme, args[i]);
         }
 
-        interpreter.ExecuteBlock(Declaration.Body, env);
+        try
+        {
+            interpreter.ExecuteBlock(Declaration.Body, env);
+        }
+        catch (ReturnException ex)
+        {
+            return ex.Value;
+        }
+
         return null;
     }
 

@@ -53,6 +53,15 @@ public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
         }
     }
 
+    public object VisitReturnStmt(Return stmt)
+    {
+        Object value = null;
+
+        if(stmt.Value != null) value = Eval(stmt.Value);
+
+        throw new ReturnException(value);
+    }
+
     public object VisitFunctionStmt(Function stmt)
     {
         var function = new LoxFunction(stmt);

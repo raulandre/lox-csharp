@@ -31,6 +31,7 @@ public static class Program
             "Function: Token name, List<Token> parameters, List<Stmt> body",
             "If: Expr condition, Stmt thenBranch, Stmt elseBranch",
             "While: Expr condition, Stmt body",
+            "Return: Token keyword, Expr value",
             "Var: Token name, Expr initializer",
             "Break: Token token"
         });
