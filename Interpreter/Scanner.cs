@@ -33,9 +33,9 @@ public class Scanner
         keywords.Add("break", TokenType.BREAK);
     }
 
-    public List<Token> ScanTokens() 
+    public List<Token> ScanTokens()
     {
-        while(!IsAtEnd())
+        while (!IsAtEnd())
         {
             start = current;
             ScanToken();
@@ -49,7 +49,7 @@ public class Scanner
     {
         var c = Advance();
 
-        switch(c)
+        switch (c)
         {
             case ' ': case '\r': case '\t': break;
             case '\n': line++; break;
@@ -76,9 +76,9 @@ public class Scanner
                 AddToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER);
                 break;
             case '/':
-                if(Match('/'))
+                if (Match('/'))
                 {
-                    while(Peek() != '\n' && !IsAtEnd())
+                    while (Peek() != '\n' && !IsAtEnd())
                         Advance();
                 }
                 else
@@ -87,18 +87,18 @@ public class Scanner
             case '"':
                 Str();
                 break;
-            default: 
-                if(char.IsDigit(c))
+            default:
+                if (char.IsDigit(c))
                 {
                     Num();
                 }
-                else if(char.IsLetterOrDigit(c) || c == '_')
+                else if (char.IsLetterOrDigit(c) || c == '_')
                 {
                     Id();
                 }
                 else
                 {
-                    Program.Error(line, "Unexpected character."); 
+                    Program.Error(line, "Unexpected character.");
                 }
                 break;
         }
@@ -114,7 +114,7 @@ public class Scanner
         return Source.ElementAt(current++);
     }
 
-    private void AddToken(TokenType type) 
+    private void AddToken(TokenType type)
     {
         AddToken(type, null);
     }
@@ -127,9 +127,9 @@ public class Scanner
 
     private bool Match(char expected)
     {
-        if(IsAtEnd()) return false;
+        if (IsAtEnd()) return false;
 
-        if(Source.ElementAt(current) != expected) return false;
+        if (Source.ElementAt(current) != expected) return false;
 
         current++;
         return true;
@@ -137,25 +137,25 @@ public class Scanner
 
     private char Peek()
     {
-        if(IsAtEnd()) return '\0';
+        if (IsAtEnd()) return '\0';
         return Source.ElementAt(current);
     }
 
     private char PeekNext()
     {
-        if(current + 1 >= Source.Length) return '\0';
+        if (current + 1 >= Source.Length) return '\0';
         return Source.ElementAt(current + 1);
     }
 
     private void Str()
     {
-        while(Peek() != '"' && !IsAtEnd())
+        while (Peek() != '"' && !IsAtEnd())
         {
-            if(Peek() == '\n') line++;
+            if (Peek() == '\n') line++;
             Advance();
         }
 
-        if(IsAtEnd())
+        if (IsAtEnd())
         {
             Program.Error(line, "Unterminated string.");
             return;
@@ -169,13 +169,13 @@ public class Scanner
 
     private void Num()
     {
-        while(char.IsDigit(Peek())) Advance();
+        while (char.IsDigit(Peek())) Advance();
 
-        if(Peek() == '.' && char.IsDigit(PeekNext()))
+        if (Peek() == '.' && char.IsDigit(PeekNext()))
         {
             Advance(); // Consume the dot
 
-            while(char.IsDigit(Peek())) Advance();
+            while (char.IsDigit(Peek())) Advance();
         }
 
         AddToken(TokenType.NUMBER, double.Parse(Source.Substring(start, current - start)));
@@ -183,10 +183,10 @@ public class Scanner
 
     private void Id()
     {
-        while(char.IsLetterOrDigit(Peek()) || Peek() == '_') Advance();
+        while (char.IsLetterOrDigit(Peek()) || Peek() == '_') Advance();
 
-       var text = Source.Substring(start, current - start);
-        if(!keywords.TryGetValue(text, out var type)) 
+        var text = Source.Substring(start, current - start);
+        if (!keywords.TryGetValue(text, out var type))
             type = TokenType.IDENTIFIER;
 
         AddToken(type);

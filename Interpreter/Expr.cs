@@ -1,3 +1,4 @@
+
 // Auto-generated file, do not modify directly.
 
 namespace Interpreter;
@@ -6,6 +7,7 @@ public interface ExprVisitor<T>
 {
     public T VisitAssignExpr(Assign expr);
     public T VisitBinaryExpr(Binary expr);
+    public T VisitCallExpr(Call expr);
     public T VisitGroupingExpr(Grouping expr);
     public T VisitLiteralExpr(Literal expr);
     public T VisitLogicalExpr(Logical expr);
@@ -53,6 +55,26 @@ public class Binary : Expr
     public override T Accept<T>(ExprVisitor<T> visitor)
     {
         return visitor.VisitBinaryExpr(this);
+    }
+}
+
+
+public class Call : Expr
+{
+    public Expr Callee { get; private set; }
+    public Token Paren { get; private set; }
+    public List<Expr> Arguments { get; private set; }
+
+    public Call(Expr callee, Token paren, List<Expr> arguments)
+    {
+        Callee = callee;
+        Paren = paren;
+        Arguments = arguments;
+    }
+
+    public override T Accept<T>(ExprVisitor<T> visitor)
+    {
+        return visitor.VisitCallExpr(this);
     }
 }
 

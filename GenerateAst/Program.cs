@@ -17,6 +17,7 @@ public static class Program
         DefineAst(outputDir, "Expr", new List<string>() {
             "Assign: Token name, Expr value",
             "Binary: Expr left, Token op, Expr right",
+            "Call: Expr callee, Token paren, List<Expr> arguments",
             "Grouping: Expr expression",
             "Literal: object value",
             "Logical: Expr left, Token op, Expr right",
@@ -27,6 +28,7 @@ public static class Program
         DefineAst(outputDir, "Stmt", new List<string>() {
             "Block: List<Stmt> statements",
             "Expression: Expr expr",
+            "Function: Token name, List<Token> parameters, List<Stmt> body",
             "If: Expr condition, Stmt thenBranch, Stmt elseBranch",
             "Print: Expr expr",
             "While: Expr condition, Stmt body",

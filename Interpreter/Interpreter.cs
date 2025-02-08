@@ -2,13 +2,21 @@ namespace Interpreter;
 
 public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
 {
-    private Env environment = new();
+    public Env globals { get; private set; } = new();
+    private Env environment;
+
+    public Interpreter()
+    {
+        environment = globals;
+
+        globals.Define("Clock", new ClockFn());
+    }
 
     public void Interpret(List<Stmt> statements)
     {
         try
         {
-            foreach(var stmt in statements)
+            foreach (var stmt in statements)
             {
                 Execute(stmt);
             }
@@ -24,14 +32,14 @@ public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
         stmt.Accept(this);
     }
 
-    private void ExecuteBlock(List<Stmt> statements, Env environment)
+    public void ExecuteBlock(List<Stmt> statements, Env environment)
     {
         var previousEnv = this.environment;
         try
         {
             this.environment = environment;
 
-            foreach(var stmt in statements)
+            foreach (var stmt in statements)
                 Execute(stmt);
 
         }
@@ -39,6 +47,31 @@ public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
         {
             this.environment = previousEnv;
         }
+    }
+
+    public object VisitFunctionStmt(Function stmt)
+    {
+        var function = new LoxFunction(stmt);
+        environment.Define(stmt.Name.Lexeme, function);
+        return null;
+    }
+
+    public object VisitCallExpr(Call expr)
+    {
+        var callee = Eval(expr.Callee);
+
+        var arguments = new List<object>();
+        arguments.AddRange(expr.Arguments.Select(Eval));
+
+        if (!(callee is ICallable))
+            throw new RuntimeException(expr.Paren, "Can't call non-function object.");
+
+        var function = callee as ICallable;
+
+        if (arguments.Count != function.Arity())
+            throw new RuntimeException(expr.Paren, $"Expected {function.Arity()} arguments, got {arguments.Count()} instead.");
+
+        return function.Call(this, arguments);
     }
 
     public object VisitBreakStmt(Break stmt)
@@ -55,7 +88,7 @@ public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
                 Execute(stmt.Body);
             }
         }
-        catch(RuntimeException ex) when (ex.Token.Type == TokenType.BREAK)
+        catch (RuntimeException ex) when (ex.Token.Type == TokenType.BREAK)
         {
             return null;
         }
@@ -65,11 +98,11 @@ public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
 
     public object VisitIfStmt(If stmt)
     {
-        if(IsTruthy(Eval(stmt.Condition)))
+        if (IsTruthy(Eval(stmt.Condition)))
         {
             Execute(stmt.Thenbranch);
         }
-        else if(stmt.Elsebranch != null)
+        else if (stmt.Elsebranch != null)
         {
             Execute(stmt.Elsebranch);
         }
@@ -82,7 +115,7 @@ public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
         var left = Eval(expr.Left);
 
         // Try to short-circuit if possible
-        if(expr.Op.Type == TokenType.OR)
+        if (expr.Op.Type == TokenType.OR)
         {
             if (IsTruthy(left)) return left;
         }
@@ -115,7 +148,7 @@ public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
     public object VisitVarStmt(Var stmt)
     {
         object value = null;
-        if(stmt.Initializer != null)
+        if (stmt.Initializer != null)
         {
             value = Eval(stmt.Initializer);
         }

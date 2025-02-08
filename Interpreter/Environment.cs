@@ -22,13 +22,13 @@ public class Env
 
     public void Assign(Token name, object value)
     {
-        if(values.ContainsKey(name.Lexeme))
+        if (values.ContainsKey(name.Lexeme))
         {
             values[name.Lexeme] = value;
             return;
         }
 
-        if(enclosing != null)
+        if (enclosing != null)
         {
             enclosing.Assign(name, value);
             return;
@@ -39,12 +39,12 @@ public class Env
 
     public object Get(Token name)
     {
-        if(values.TryGetValue(name.Lexeme, out var value))
+        if (values.TryGetValue(name.Lexeme, out var value))
         {
             return value;
         }
 
-        if(enclosing != null)
+        if (enclosing != null)
             return enclosing.Get(name);
 
         throw new RuntimeException(name, $"Undefined variable '{name.Lexeme}.'");

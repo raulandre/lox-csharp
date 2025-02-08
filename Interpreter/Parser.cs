@@ -26,10 +26,10 @@ public class Parser
     {
         try
         {
-            if(Match(TokenType.VAR)) return VarDeclaration();
+            if (Match(TokenType.VAR)) return VarDeclaration();
             return Statement();
         }
-        catch(ParseException)
+        catch (ParseException)
         {
             Synchronize();
             return null;
@@ -41,7 +41,7 @@ public class Parser
         var name = Consume(TokenType.IDENTIFIER, "Expected variable name.");
 
         Expr initializer = null;
-        if(Match(TokenType.EQUAL))
+        if (Match(TokenType.EQUAL))
         {
             initializer = Expression();
         }
@@ -52,6 +52,7 @@ public class Parser
 
     private Stmt Statement()
     {
+        if (Match(TokenType.FUN)) return Function("function");
         if (Match(TokenType.FOR)) return ForStmt();
         if (Match(TokenType.IF)) return IfStmt();
         if (Match(TokenType.BREAK)) return BreakStmt();
@@ -60,6 +61,29 @@ public class Parser
         if (Match(TokenType.LEFT_BRACE)) return new Block(Block());
 
         return ExpressionStmt();
+    }
+
+    private Function Function(string kind)
+    {
+        var name = Consume(TokenType.IDENTIFIER, $"Expected ${kind} name.");
+        Consume(TokenType.LEFT_PAREN, $"Expected '(' after {kind} declaration.");
+        var parameters = new List<Token>();
+
+        if (!Check(TokenType.RIGHT_PAREN))
+        {
+            do
+            {
+                if (parameters.Count >= 255)
+                    Error(Peek(), "Limit of arguments reached (255).");
+
+                parameters.Add(Consume(TokenType.IDENTIFIER, "Expected parameter name."));
+            } while (Match(TokenType.COMMA));
+        }
+
+        Consume(TokenType.RIGHT_PAREN, "Expected ')' after parameter list.");
+        Consume(TokenType.LEFT_BRACE, $"Expected '{{' before {kind} body.");
+        var body = Block();
+        return new Function(name, parameters, body);
     }
 
     private Stmt BreakStmt()
@@ -74,11 +98,11 @@ public class Parser
         Consume(TokenType.LEFT_PAREN, "Expected '(' after 'for'.");
 
         Stmt initializer;
-        if(Match(TokenType.SEMICOLON))
+        if (Match(TokenType.SEMICOLON))
         {
             initializer = null;
         }
-        else if(Match(TokenType.VAR))
+        else if (Match(TokenType.VAR))
         {
             initializer = VarDeclaration();
         }
@@ -88,14 +112,14 @@ public class Parser
         }
 
         Expr condition = null;
-        if(!Check(TokenType.SEMICOLON))
+        if (!Check(TokenType.SEMICOLON))
         {
             condition = Expression();
         }
         Consume(TokenType.SEMICOLON, "Expected ';' after for loop condition.");
 
         Expr increment = null;
-        if(!Check(TokenType.RIGHT_PAREN))
+        if (!Check(TokenType.RIGHT_PAREN))
         {
             increment = Expression();
         }
@@ -104,7 +128,7 @@ public class Parser
 
         var body = Statement();
 
-        if(increment != null)
+        if (increment != null)
         {
             body = new Block(new List<Stmt>(){
                     body,
@@ -112,7 +136,7 @@ public class Parser
                 });
         }
 
-        if(condition == null)
+        if (condition == null)
             condition = new Literal(true);
 
         body = new While(condition, body);
@@ -145,7 +169,7 @@ public class Parser
 
         var thenBranch = Statement();
         Stmt elseBranch = null;
-        if(Match(TokenType.ELSE))
+        if (Match(TokenType.ELSE))
         {
             elseBranch = Statement();
         }
@@ -157,7 +181,7 @@ public class Parser
     {
         var statements = new List<Stmt>();
 
-        while(!Check(TokenType.RIGHT_BRACE) && !IsAtEnd())
+        while (!Check(TokenType.RIGHT_BRACE) && !IsAtEnd())
         {
             statements.Add(Declaration());
         }
@@ -189,12 +213,12 @@ public class Parser
     {
         var expr = Or();
 
-        if(Match(TokenType.EQUAL))
+        if (Match(TokenType.EQUAL))
         {
             var eq = Previous();
             var value = Assignment();
 
-            if(expr is Variable)
+            if (expr is Variable)
             {
                 var name = (expr as Variable)?.Name;
                 return new Assign(name, value);
@@ -210,7 +234,7 @@ public class Parser
     {
         var expr = And();
 
-        while(Match(TokenType.OR))
+        while (Match(TokenType.OR))
         {
             var op = Previous();
             var right = And();
@@ -224,7 +248,7 @@ public class Parser
     {
         var expr = Equality();
 
-        while(Match(TokenType.AND))
+        while (Match(TokenType.AND))
         {
             var op = Previous();
             var right = Equality();
@@ -237,7 +261,7 @@ public class Parser
     private Expr Equality()
     {
         var expr = Comparison();
-        while(Match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL))
+        while (Match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL))
         {
             var op = Previous();
             var right = Comparison();
@@ -250,7 +274,7 @@ public class Parser
     private Expr Comparison()
     {
         var expr = Term();
-        while(Match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL))
+        while (Match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL))
         {
             var op = Previous();
             var right = Term();
@@ -263,7 +287,7 @@ public class Parser
     private Expr Term()
     {
         var expr = Factor();
-        while(Match(TokenType.MINUS, TokenType.PLUS))
+        while (Match(TokenType.MINUS, TokenType.PLUS))
         {
             var op = Previous();
             var right = Factor();
@@ -276,7 +300,7 @@ public class Parser
     private Expr Factor()
     {
         var expr = Unary();
-        while(Match(TokenType.SLASH, TokenType.STAR))
+        while (Match(TokenType.SLASH, TokenType.STAR))
         {
             var op = Previous();
             var right = Unary();
@@ -288,33 +312,67 @@ public class Parser
 
     private Expr Unary()
     {
-        if(Match(TokenType.BANG, TokenType.MINUS, TokenType.PLUS))
+        if (Match(TokenType.BANG, TokenType.MINUS, TokenType.PLUS))
         {
             var op = Previous();
             var right = Unary();
             return new Unary(op, right);
         }
 
-        return Primary();
+        return Call();
+    }
+
+    private Expr Call()
+    {
+        var expr = Primary();
+
+        while (true)
+        {
+            if (Match(TokenType.LEFT_PAREN))
+                expr = FinishCall(expr);
+            else
+                break;
+        }
+
+        return expr;
+    }
+
+    private Expr FinishCall(Expr callee)
+    {
+        var arguments = new List<Expr>();
+
+        if (!Check(TokenType.RIGHT_PAREN))
+        {
+            do
+            {
+                if (arguments.Count >= 255)
+                    Error(Peek(), "Limit of arguments reached (255).");
+                arguments.Add(Expression());
+            } while (Match(TokenType.COMMA));
+        }
+
+        var paren = Consume(TokenType.RIGHT_PAREN, "Expected ')' after argument list.");
+
+        return new Call(callee, paren, arguments);
     }
 
     private Expr Primary()
     {
-        if(Match(TokenType.FALSE)) return new Literal(false);
-        if(Match(TokenType.TRUE)) return new Literal(true);
-        if(Match(TokenType.NIL)) return new Literal(null);
+        if (Match(TokenType.FALSE)) return new Literal(false);
+        if (Match(TokenType.TRUE)) return new Literal(true);
+        if (Match(TokenType.NIL)) return new Literal(null);
 
-        if(Match(TokenType.NUMBER, TokenType.STRING))
+        if (Match(TokenType.NUMBER, TokenType.STRING))
         {
             return new Literal(Previous().Literal);
         }
 
-        if(Match(TokenType.IDENTIFIER))
+        if (Match(TokenType.IDENTIFIER))
         {
             return new Variable(Previous());
         }
 
-        if(Match(TokenType.LEFT_PAREN))
+        if (Match(TokenType.LEFT_PAREN))
         {
             var expr = Expression();
             Consume(TokenType.RIGHT_PAREN, "Expected ')' after expression.");
@@ -326,7 +384,7 @@ public class Parser
 
     private Token Consume(TokenType type, string message)
     {
-        if(Check(type)) return Advance();
+        if (Check(type)) return Advance();
         throw Error(Peek(), message);
     }
 
@@ -338,9 +396,10 @@ public class Parser
 
     private bool Match(params TokenType[] types)
     {
-        foreach(var type in types)
+        foreach (var type in types)
         {
-            if(Check(type)) {
+            if (Check(type))
+            {
                 Advance();
                 return true;
             }
@@ -352,11 +411,11 @@ public class Parser
     private void Synchronize()
     {
         Advance();
-        while(!IsAtEnd())
+        while (!IsAtEnd())
         {
-            if(Previous().Type == TokenType.SEMICOLON) return;
+            if (Previous().Type == TokenType.SEMICOLON) return;
 
-            switch(Peek().Type)
+            switch (Peek().Type)
             {
                 case TokenType.CLASS:
                 case TokenType.FOR:
@@ -375,13 +434,13 @@ public class Parser
 
     private bool Check(TokenType type)
     {
-        if(IsAtEnd()) return false;
+        if (IsAtEnd()) return false;
         return Peek().Type == type;
     }
 
     private Token Advance()
     {
-        if(!IsAtEnd()) current++;
+        if (!IsAtEnd()) current++;
         return Previous();
     }
 

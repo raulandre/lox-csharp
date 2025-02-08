@@ -1,10 +1,7 @@
-var f = 1;
-var n = 10;
-
-for(var i = n; i >= -1; i = i - 1)
+fun greet(first, last)
 {
-    if(i == 0)
-         break;
-
-    print(i);
+    print("Hello, " + first + " " + last + "!");
 }
+
+print(greet);
+greet("John", "Lennon");

@@ -1,3 +1,4 @@
+
 // Auto-generated file, do not modify directly.
 
 namespace Interpreter;
@@ -6,6 +7,7 @@ public interface StmtVisitor<T>
 {
     public T VisitBlockStmt(Block stmt);
     public T VisitExpressionStmt(Expression stmt);
+    public T VisitFunctionStmt(Function stmt);
     public T VisitIfStmt(If stmt);
     public T VisitPrintStmt(Print stmt);
     public T VisitWhileStmt(While stmt);
@@ -47,6 +49,26 @@ public class Expression : Stmt
     public override T Accept<T>(StmtVisitor<T> visitor)
     {
         return visitor.VisitExpressionStmt(this);
+    }
+}
+
+
+public class Function : Stmt
+{
+    public Token Name { get; private set; }
+    public List<Token> Parameters { get; private set; }
+    public List<Stmt> Body { get; private set; }
+
+    public Function(Token name, List<Token> parameters, List<Stmt> body)
+    {
+        Name = name;
+        Parameters = parameters;
+        Body = body;
+    }
+
+    public override T Accept<T>(StmtVisitor<T> visitor)
+    {
+        return visitor.VisitFunctionStmt(this);
     }
 }
 
@@ -137,3 +159,4 @@ public class Break : Stmt
         return visitor.VisitBreakStmt(this);
     }
 }
+
