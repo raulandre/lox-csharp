@@ -23,7 +23,7 @@ public abstract class Stmt
 
 public class Block : Stmt
 {
-    public List<Stmt> Statements { get; private set; }
+    public List<Stmt> Statements { get; set; }
 
     public Block(List<Stmt> statements)
     {
@@ -39,7 +39,7 @@ public class Block : Stmt
 
 public class Expression : Stmt
 {
-    public Expr Expr { get; private set; }
+    public Expr Expr { get; set; }
 
     public Expression(Expr expr)
     {
@@ -55,9 +55,9 @@ public class Expression : Stmt
 
 public class Function : Stmt
 {
-    public Token Name { get; private set; }
-    public List<Token> Parameters { get; private set; }
-    public List<Stmt> Body { get; private set; }
+    public Token Name { get; set; }
+    public List<Token> Parameters { get; set; }
+    public List<Stmt> Body { get; set; }
 
     public Function(Token name, List<Token> parameters, List<Stmt> body)
     {
@@ -75,9 +75,9 @@ public class Function : Stmt
 
 public class If : Stmt
 {
-    public Expr Condition { get; private set; }
-    public Stmt Thenbranch { get; private set; }
-    public Stmt Elsebranch { get; private set; }
+    public Expr Condition { get; set; }
+    public Stmt Thenbranch { get; set; }
+    public Stmt Elsebranch { get; set; }
 
     public If(Expr condition, Stmt thenBranch, Stmt elseBranch)
     {
@@ -95,8 +95,8 @@ public class If : Stmt
 
 public class While : Stmt
 {
-    public Expr Condition { get; private set; }
-    public Stmt Body { get; private set; }
+    public Expr Condition { get; set; }
+    public Stmt Body { get; set; }
 
     public While(Expr condition, Stmt body)
     {
@@ -113,8 +113,8 @@ public class While : Stmt
 
 public class Return : Stmt
 {
-    public Token Keyword { get; private set; }
-    public Expr Value { get; private set; }
+    public Token Keyword { get; set; }
+    public Expr Value { get; set; }
 
     public Return(Token keyword, Expr value)
     {
@@ -131,8 +131,8 @@ public class Return : Stmt
 
 public class Var : Stmt
 {
-    public Token Name { get; private set; }
-    public Expr Initializer { get; private set; }
+    public Token Name { get; set; }
+    public Expr Initializer { get; set; }
 
     public Var(Token name, Expr initializer)
     {
@@ -149,7 +149,7 @@ public class Var : Stmt
 
 public class Break : Stmt
 {
-    public Token Token { get; private set; }
+    public Token Token { get; set; }
 
     public Break(Token token)
     {

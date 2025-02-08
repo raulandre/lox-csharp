@@ -1,18 +1,12 @@
-fun fib(n)
-{
-    if(n <= 1) return n;
-    return fib(n-1) + fib(n-2);
-}
+var doubler = fun (n) {
+    return n * 2;
+};
 
-fun fact(n)
-{
-    if(n == 0) return 1;
-    return n * fact(n-1);
-}
+var applier = fun (n, fn) {
+    for(var i = 1; i <= n; i = i + 1)
+            print(fn(i));
+};
 
-print("Enter a number:");
-var n = number(read());
+applier(5, doubler);
 
-print("Fib: " + fib(n));
-print("Fact: " + fact(n));
 exit(0);

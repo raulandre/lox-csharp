@@ -77,7 +77,12 @@ public class Parser
 
     private Function Function(string kind)
     {
-        var name = Consume(TokenType.IDENTIFIER, $"Expected ${kind} name.");
+        Token name = null;
+        if (kind != "lambda")
+            name = Consume(TokenType.IDENTIFIER, $"Expected {kind} name.");
+        else
+            Advance();
+
         Consume(TokenType.LEFT_PAREN, $"Expected '(' after {kind} declaration.");
         var parameters = new List<Token>();
 
@@ -96,6 +101,12 @@ public class Parser
         Consume(TokenType.LEFT_BRACE, $"Expected '{{' before {kind} body.");
         var body = Block();
         return new Function(name, parameters, body);
+    }
+
+    private Lambda Lambda()
+    {
+        var function = Function("lambda");
+        return new Lambda(function);
     }
 
     private Stmt BreakStmt()
@@ -383,6 +394,9 @@ public class Parser
             Consume(TokenType.RIGHT_PAREN, "Expected ')' after expression.");
             return new Grouping(expr);
         }
+
+        if (Check(TokenType.FUN))
+            return Lambda();
 
         throw Error(Peek(), "Expected expression.");
     }

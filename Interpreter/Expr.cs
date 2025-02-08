@@ -13,6 +13,7 @@ namespace Interpreter;
     public T VisitLogicalExpr(Logical expr);
     public T VisitUnaryExpr(Unary expr);
     public T VisitVariableExpr(Variable expr);
+    public T VisitLambdaExpr(Lambda expr);
 }
 
 public abstract class Expr
@@ -23,8 +24,8 @@ public abstract class Expr
 
 public class Assign : Expr
 {
-    public Token Name { get; private set; }
-    public Expr Value { get; private set; }
+    public Token Name { get; set; }
+    public Expr Value { get; set; }
 
     public Assign(Token name, Expr value)
     {
@@ -41,9 +42,9 @@ public class Assign : Expr
 
 public class Binary : Expr
 {
-    public Expr Left { get; private set; }
-    public Token Op { get; private set; }
-    public Expr Right { get; private set; }
+    public Expr Left { get; set; }
+    public Token Op { get; set; }
+    public Expr Right { get; set; }
 
     public Binary(Expr left, Token op, Expr right)
     {
@@ -61,9 +62,9 @@ public class Binary : Expr
 
 public class Call : Expr
 {
-    public Expr Callee { get; private set; }
-    public Token Paren { get; private set; }
-    public List<Expr> Arguments { get; private set; }
+    public Expr Callee { get; set; }
+    public Token Paren { get; set; }
+    public List<Expr> Arguments { get; set; }
 
     public Call(Expr callee, Token paren, List<Expr> arguments)
     {
@@ -81,7 +82,7 @@ public class Call : Expr
 
 public class Grouping : Expr
 {
-    public Expr Expression { get; private set; }
+    public Expr Expression { get; set; }
 
     public Grouping(Expr expression)
     {
@@ -97,7 +98,7 @@ public class Grouping : Expr
 
 public class Literal : Expr
 {
-    public object Value { get; private set; }
+    public object Value { get; set; }
 
     public Literal(object value)
     {
@@ -113,9 +114,9 @@ public class Literal : Expr
 
 public class Logical : Expr
 {
-    public Expr Left { get; private set; }
-    public Token Op { get; private set; }
-    public Expr Right { get; private set; }
+    public Expr Left { get; set; }
+    public Token Op { get; set; }
+    public Expr Right { get; set; }
 
     public Logical(Expr left, Token op, Expr right)
     {
@@ -133,8 +134,8 @@ public class Logical : Expr
 
 public class Unary : Expr
 {
-    public Token Op { get; private set; }
-    public Expr Right { get; private set; }
+    public Token Op { get; set; }
+    public Expr Right { get; set; }
 
     public Unary(Token op, Expr right)
     {
@@ -151,7 +152,7 @@ public class Unary : Expr
 
 public class Variable : Expr
 {
-    public Token Name { get; private set; }
+    public Token Name { get; set; }
 
     public Variable(Token name)
     {
@@ -161,6 +162,22 @@ public class Variable : Expr
     public override T Accept<T>(ExprVisitor<T> visitor)
     {
         return visitor.VisitVariableExpr(this);
+    }
+}
+
+
+public class Lambda : Expr
+{
+    public Function Function { get; set; }
+
+    public Lambda(Function function)
+    {
+        Function = function;
+    }
+
+    public override T Accept<T>(ExprVisitor<T> visitor)
+    {
+        return visitor.VisitLambdaExpr(this);
     }
 }
 

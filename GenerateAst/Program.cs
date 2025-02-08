@@ -22,7 +22,8 @@ public static class Program
             "Literal: object value",
             "Logical: Expr left, Token op, Expr right",
             "Unary: Token op, Expr right",
-            "Variable: Token name"
+            "Variable: Token name",
+            "Lambda: Function function"
         });
 
         DefineAst(outputDir, "Stmt", new List<string>() {
@@ -81,7 +82,7 @@ public static class Program
             {{
                 {string.Join('\n',
                     fields.Split(", ").Select(field =>
-                    $"public {field.Split(" ")[0]} {CultureInfo.CurrentCulture.TextInfo.ToTitleCase(field.Split(" ")[1])} {{ get; private set; }}")
+                    $"public {field.Split(" ")[0]} {CultureInfo.CurrentCulture.TextInfo.ToTitleCase(field.Split(" ")[1])} {{ get; set; }}")
                     )}
 
                 public {className}({fields})
