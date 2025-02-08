@@ -1,12 +1,55 @@
-var doubler = fun (n) {
-    return n * 2;
+fun assert(condition, message)
+{
+    if(!condition)
+    {
+        print(message);
+        exit(-1);
+    }
+}
+
+var fib = fun (n)
+{
+    if(n <= 1) return n;
+    return fib(n-1) + fib(n-2);
 };
 
-var applier = fun (n, fn) {
-    for(var i = 1; i <= n; i = i + 1)
-            print(fn(i));
+var fact = fun (n)
+{
+    if(n == 0) return 1;
+    return n * fact(n-1);
 };
 
-applier(5, doubler);
+var a = 1;
+assert(a == 1, "Failed to declare number variable");
+
+var b = "b";
+assert(b == "b", "Failed to declare number variable");
+
+var c = true;
+assert(c == true, "Failed to declare boolean variable");
+
+assert(fun (){}() == nil, "Function should default return value to nil");
+assert(fun (){ return 1; }() == 1, "Function should return specified value");
+
+var n = 5;
+var t = 0;
+while(n > 0) {
+        t = t + 1;
+        n = n - 1;
+}
+// For loops decay into while loops, so this works for both
+assert(t == 5, "Wrong amount of iterations in while loop");
+
+assert(fib(10) == 55, "Failed to calculate fibonacci sequence");
+assert(fact(5) == 120, "Failed to calculate factorial");
+{
+    assert(fib(10) == 55, "Failed to calculate fibonacci sequence in separate environment");
+    assert(fact(5) == 120, "Failed to calculate factorial in separate environment");
+}
+
+{
+    var a = 123;
+    assert(a != 1, "Failed to create variable with same name in different environment");
+}
 
 exit(0);
