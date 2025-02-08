@@ -1,167 +1,168 @@
 
-            // Auto-generated file, do not modify directly.
+// Auto-generated file, do not modify directly.
 
-            namespace Interpreter;
+namespace Interpreter;
 
             public interface ExprVisitor<T>
-            {
-                public T VisitAssignExpr(Assign expr);
-public T VisitBinaryExpr(Binary expr);
-public T VisitCallExpr(Call expr);
-public T VisitGroupingExpr(Grouping expr);
-public T VisitLiteralExpr(Literal expr);
-public T VisitLogicalExpr(Logical expr);
-public T VisitUnaryExpr(Unary expr);
-public T VisitVariableExpr(Variable expr);
-            }
+{
+    public T VisitAssignExpr(Assign expr);
+    public T VisitBinaryExpr(Binary expr);
+    public T VisitCallExpr(Call expr);
+    public T VisitGroupingExpr(Grouping expr);
+    public T VisitLiteralExpr(Literal expr);
+    public T VisitLogicalExpr(Logical expr);
+    public T VisitUnaryExpr(Unary expr);
+    public T VisitVariableExpr(Variable expr);
+}
 
-            public abstract class Expr
-            {
-                    public abstract T Accept<T>(ExprVisitor<T> visitor);
-            };
+public abstract class Expr
+{
+    public abstract T Accept<T>(ExprVisitor<T> visitor);
+};
 
-            
-            public class Assign : Expr
-            {
-                public Token Name { get; private set; }
-public Expr Value { get; private set; }
 
-                public Assign(Token name, Expr value)
-                {
-                    Name = name;
-Value = value;
-                }
+public class Assign : Expr
+{
+    public Token Name { get; private set; }
+    public Expr Value { get; private set; }
 
-public override T Accept<T>(ExprVisitor<T> visitor)
-                {
-                    return visitor.VisitAssignExpr(this);
-                }
-            }
-        
+    public Assign(Token name, Expr value)
+    {
+        Name = name;
+        Value = value;
+    }
 
-            public class Binary : Expr
-            {
-                public Expr Left { get; private set; }
-public Token Op { get; private set; }
-public Expr Right { get; private set; }
+    public override T Accept<T>(ExprVisitor<T> visitor)
+    {
+        return visitor.VisitAssignExpr(this);
+    }
+}
 
-                public Binary(Expr left, Token op, Expr right)
-                {
-                    Left = left;
-Op = op;
-Right = right;
-                }
 
-public override T Accept<T>(ExprVisitor<T> visitor)
-                {
-                    return visitor.VisitBinaryExpr(this);
-                }
-            }
-        
+public class Binary : Expr
+{
+    public Expr Left { get; private set; }
+    public Token Op { get; private set; }
+    public Expr Right { get; private set; }
 
-            public class Call : Expr
-            {
-                public Expr Callee { get; private set; }
-public Token Paren { get; private set; }
-public List<Expr> Arguments { get; private set; }
+    public Binary(Expr left, Token op, Expr right)
+    {
+        Left = left;
+        Op = op;
+        Right = right;
+    }
 
-                public Call(Expr callee, Token paren, List<Expr> arguments)
-                {
-                    Callee = callee;
-Paren = paren;
-Arguments = arguments;
-                }
+    public override T Accept<T>(ExprVisitor<T> visitor)
+    {
+        return visitor.VisitBinaryExpr(this);
+    }
+}
 
-public override T Accept<T>(ExprVisitor<T> visitor)
-                {
-                    return visitor.VisitCallExpr(this);
-                }
-            }
-        
 
-            public class Grouping : Expr
-            {
-                public Expr Expression { get; private set; }
+public class Call : Expr
+{
+    public Expr Callee { get; private set; }
+    public Token Paren { get; private set; }
+    public List<Expr> Arguments { get; private set; }
 
-                public Grouping(Expr expression)
-                {
-                    Expression = expression;
-                }
+    public Call(Expr callee, Token paren, List<Expr> arguments)
+    {
+        Callee = callee;
+        Paren = paren;
+        Arguments = arguments;
+    }
 
-public override T Accept<T>(ExprVisitor<T> visitor)
-                {
-                    return visitor.VisitGroupingExpr(this);
-                }
-            }
-        
+    public override T Accept<T>(ExprVisitor<T> visitor)
+    {
+        return visitor.VisitCallExpr(this);
+    }
+}
 
-            public class Literal : Expr
-            {
-                public object Value { get; private set; }
 
-                public Literal(object value)
-                {
-                    Value = value;
-                }
+public class Grouping : Expr
+{
+    public Expr Expression { get; private set; }
 
-public override T Accept<T>(ExprVisitor<T> visitor)
-                {
-                    return visitor.VisitLiteralExpr(this);
-                }
-            }
-        
+    public Grouping(Expr expression)
+    {
+        Expression = expression;
+    }
 
-            public class Logical : Expr
-            {
-                public Expr Left { get; private set; }
-public Token Op { get; private set; }
-public Expr Right { get; private set; }
+    public override T Accept<T>(ExprVisitor<T> visitor)
+    {
+        return visitor.VisitGroupingExpr(this);
+    }
+}
 
-                public Logical(Expr left, Token op, Expr right)
-                {
-                    Left = left;
-Op = op;
-Right = right;
-                }
 
-public override T Accept<T>(ExprVisitor<T> visitor)
-                {
-                    return visitor.VisitLogicalExpr(this);
-                }
-            }
-        
+public class Literal : Expr
+{
+    public object Value { get; private set; }
 
-            public class Unary : Expr
-            {
-                public Token Op { get; private set; }
-public Expr Right { get; private set; }
+    public Literal(object value)
+    {
+        Value = value;
+    }
 
-                public Unary(Token op, Expr right)
-                {
-                    Op = op;
-Right = right;
-                }
+    public override T Accept<T>(ExprVisitor<T> visitor)
+    {
+        return visitor.VisitLiteralExpr(this);
+    }
+}
 
-public override T Accept<T>(ExprVisitor<T> visitor)
-                {
-                    return visitor.VisitUnaryExpr(this);
-                }
-            }
-        
 
-            public class Variable : Expr
-            {
-                public Token Name { get; private set; }
+public class Logical : Expr
+{
+    public Expr Left { get; private set; }
+    public Token Op { get; private set; }
+    public Expr Right { get; private set; }
 
-                public Variable(Token name)
-                {
-                    Name = name;
-                }
+    public Logical(Expr left, Token op, Expr right)
+    {
+        Left = left;
+        Op = op;
+        Right = right;
+    }
 
-public override T Accept<T>(ExprVisitor<T> visitor)
-                {
-                    return visitor.VisitVariableExpr(this);
-                }
-            }
-        
+    public override T Accept<T>(ExprVisitor<T> visitor)
+    {
+        return visitor.VisitLogicalExpr(this);
+    }
+}
+
+
+public class Unary : Expr
+{
+    public Token Op { get; private set; }
+    public Expr Right { get; private set; }
+
+    public Unary(Token op, Expr right)
+    {
+        Op = op;
+        Right = right;
+    }
+
+    public override T Accept<T>(ExprVisitor<T> visitor)
+    {
+        return visitor.VisitUnaryExpr(this);
+    }
+}
+
+
+public class Variable : Expr
+{
+    public Token Name { get; private set; }
+
+    public Variable(Token name)
+    {
+        Name = name;
+    }
+
+    public override T Accept<T>(ExprVisitor<T> visitor)
+    {
+        return visitor.VisitVariableExpr(this);
+    }
+}
+
+
         

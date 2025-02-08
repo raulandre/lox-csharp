@@ -68,7 +68,7 @@ public class Parser
         var keyword = Previous();
         Expr value = null;
 
-        if(!Check(TokenType.SEMICOLON))
+        if (!Check(TokenType.SEMICOLON))
             value = Expression();
 
         Consume(TokenType.SEMICOLON, "Expected ';' after return value.");

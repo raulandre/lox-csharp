@@ -7,6 +7,6 @@ public class ReturnException : RuntimeException
     public ReturnException(object value)
         : base(null, null)
     {
-       Value = value;
+        Value = value;
     }
 }

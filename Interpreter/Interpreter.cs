@@ -57,7 +57,7 @@ public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
     {
         Object value = null;
 
-        if(stmt.Value != null) value = Eval(stmt.Value);
+        if (stmt.Value != null) value = Eval(stmt.Value);
 
         throw new ReturnException(value);
     }
