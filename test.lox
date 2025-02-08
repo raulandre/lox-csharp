@@ -49,7 +49,7 @@ assert(fact(5) == 120, "Failed to calculate factorial");
 
 {
     var a = 123;
-    assert(a =! 1, "Failed to create variable with same name in different environment");
+    assert(a != 1, "Failed to create variable with same name in different environment");
 }
 
 exit(0);
