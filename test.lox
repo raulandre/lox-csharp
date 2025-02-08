@@ -63,8 +63,8 @@ var makeCounter = fun() {
 };
 
 var counter = makeCounter();
-assert(counter() == 1, "Closure not working as expected");
-assert(counter() == 2, "Closure not working as expected");
-assert(counter() == 3, "Closure not working as expected");
+for(var i = 1; i <= 3; i = i + 1) {
+	assert(counter() == i, "Closure not working as expected");
+}
 
 exit(0);
