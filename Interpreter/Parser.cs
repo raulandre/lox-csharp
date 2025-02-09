@@ -395,8 +395,10 @@ public class Parser
             return new Grouping(expr);
         }
 
+        /*
         if (Check(TokenType.FUN))
             return Lambda();
+         */
 
         throw Error(Peek(), "Expected expression.");
     }

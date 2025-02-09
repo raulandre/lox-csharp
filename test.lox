@@ -7,17 +7,17 @@ fun assert(condition, message)
     }
 }
 
-var fib = fun (n)
+fun fib(n)
 {
     if(n <= 1) return n;
     return fib(n-1) + fib(n-2);
-};
+}
 
-var fact = fun (n)
+fun fact(n)
 {
     if(n == 0) return 1;
     return n * fact(n-1);
-};
+}
 
 var a = 1;
 assert(a == 1, "Failed to declare number variable");
@@ -28,8 +28,10 @@ assert(b == "b", "Failed to declare number variable");
 var c = true;
 assert(c == true, "Failed to declare boolean variable");
 
-assert(fun (){}() == nil, "Function should default return value to nil");
-assert(fun (){ return 1; }() == 1, "Function should return specified value");
+fun f1() { return nil;  }
+fun f2() { return 1;  }
+assert(f1() == nil, "Function should default return value to nil");
+assert(f2() == 1, "Function should return specified value");
 
 var n = 5;
 var t = 0;
