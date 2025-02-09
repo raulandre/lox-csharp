@@ -62,9 +62,9 @@ public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
     public object VisitLambdaExpr(Lambda expr)
     {
         var name = $"Lambda${Guid.NewGuid()}";
-        expr.Function.Name = new(TokenType.IDENTIFIER, name, null, 0);
+        expr.Function.Name = new(TokenType.IDENTIFIER, name, name, 0);
         var function = new LoxFunction(expr.Function, environment);
-        globals.Define(name, expr.Function);
+        environment.Define(name, expr.Function);
         return function;
     }
 
