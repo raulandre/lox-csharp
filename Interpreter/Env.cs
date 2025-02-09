@@ -37,6 +37,11 @@ public class Env
         throw new RuntimeException(name, $"Undefined variable '{name.Lexeme}.'");
     }
 
+    public void AssignAt(int distance, Token name, object value)
+    {
+        Ancestor(distance).values.Add(name.Lexeme, value);
+    }
+
     public object Get(Token name)
     {
         if (values.TryGetValue(name.Lexeme, out var value))
@@ -48,5 +53,24 @@ public class Env
             return enclosing.Get(name);
 
         throw new RuntimeException(name, $"Undefined variable '{name.Lexeme}.'");
+    }
+
+    public object GetAt(int distance, string name)
+    {
+        var ancestor = Ancestor(distance);
+        if (!ancestor.values.ContainsKey(name))
+            return null;
+
+        return ancestor.values[name];
+    }
+
+    public Env Ancestor(int distance)
+    {
+        var env = this;
+
+        for (int i = 0; i < distance; i++)
+            env = env.enclosing;
+
+        return env;
     }
 }

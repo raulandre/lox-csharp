@@ -3,6 +3,7 @@ namespace Interpreter;
 public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
 {
     public Env globals { get; private set; } = new();
+    public Dictionary<Expr, int> locals { get; private set; } = new();
     private Env environment;
 
     public Interpreter()
@@ -14,6 +15,11 @@ public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
         globals.Define("read", new ReadFn());
         globals.Define("exit", new ExitFn());
         globals.Define("number", new NumberFn());
+    }
+
+    public void Resolve(Expr expr, int depth)
+    {
+        locals.Add(expr, depth);
     }
 
     public void Interpret(List<Stmt> statements)
@@ -158,13 +164,33 @@ public class Interpreter : ExprVisitor<object>, StmtVisitor<object>
     public object VisitAssignExpr(Assign expr)
     {
         var value = Eval(expr.Value);
-        environment.Assign(expr.Name, value);
+
+        if (locals.ContainsKey(expr))
+        {
+            var distance = locals[expr];
+            environment.AssignAt(distance, expr.Name, value);
+        }
+        else
+        {
+            globals.Assign(expr.Name, value);
+        }
+
         return value;
     }
 
     public object VisitVariableExpr(Variable expr)
     {
-        return environment.Get(expr.Name);
+        return LookupVariable(expr.Name, expr);
+    }
+
+    private object LookupVariable(Token name, Expr expr)
+    {
+        if (locals.TryGetValue(expr, out var distance))
+        {
+            return environment.GetAt(distance, name.Lexeme);
+        }
+
+        return globals.Get(name);
     }
 
     public object VisitVarStmt(Var stmt)

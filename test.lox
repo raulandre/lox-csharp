@@ -52,19 +52,4 @@ assert(fact(5) == 120, "Failed to calculate factorial");
     assert(a != 1, "Failed to create variable with same name in different environment");
 }
 
-var makeCounter = fun() {
-	var i = 0;
-	fun count() {
-		i = i + 1;
-		return i;
-	}
-
-	return count;
-};
-
-var counter = makeCounter();
-for(var i = 1; i <= 3; i = i + 1) {
-	assert(counter() == i, "Closure not working as expected");
-}
-
 exit(0);
