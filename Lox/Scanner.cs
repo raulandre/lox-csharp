@@ -1,7 +1,6 @@
-using System.Data.Common;
 using System.Globalization;
-using System.Text.RegularExpressions;
 using Lox.Tokens;
+
 using static Lox.Tokens.TokenType;
 
 namespace Lox;
@@ -43,7 +42,7 @@ public class Scanner(string source)
             ScanToken();
         }
 
-        Tokens.Add(new Token(EOF, "", null, Line));
+        Tokens.Add(new Token(EOF, string.Empty, null, Line));
         return Tokens;
     }
 
@@ -94,7 +93,7 @@ public class Scanner(string source)
             case '"':
                 Str();
                 break;
-            
+
             default:
                 if (char.IsDigit(c))
                     Number();
@@ -148,7 +147,7 @@ public class Scanner(string source)
         while (char.IsLetter(Peek())) Advance();
         var text = Source[Start..Current];
         if (!Keywords.TryGetValue(text, out var type))
-            type = IDENTIFIER; 
+            type = IDENTIFIER;
         AddToken(type);
     }
 
@@ -190,7 +189,6 @@ public class Scanner(string source)
 
     private void AddToken(TokenType type, object? literal)
     {
-        // TODO: check if we need +1 for length here.
         var text = Source[Start..Current];
         Tokens.Add(new Token(type, text, literal, Line));
     }
