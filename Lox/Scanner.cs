@@ -122,7 +122,7 @@ public class Scanner(string source)
         // Consume the terminating '"'
         Advance();
 
-        var str = Source.Substring(Start + 1, Start + Current - 1);
+        var str = Source[(Start + 1)..(Current - 1)];
         AddToken(STRING, str);
     }
 
