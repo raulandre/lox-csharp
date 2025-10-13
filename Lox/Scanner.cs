@@ -14,7 +14,7 @@ public class Scanner(string source)
     public int Current { get; private set; } = 0;
     public int Line { get; private set; } = 1;
 
-    public static Dictionary<string, TokenType> Keywords = new()
+    private static readonly Dictionary<string, TokenType> _keywords = new()
     {
         {"and", AND},
         {"class", CLASS},
@@ -33,6 +33,7 @@ public class Scanner(string source)
         {"var", VAR},
         {"while", WHILE},
     };
+    public static IReadOnlyDictionary<string, TokenType> Keywords => _keywords;
 
     public List<Token> ScanTokens()
     {
