@@ -45,8 +45,12 @@ public static class AST
     {{
         {string.Join('\n', constructorInitializers)}
     }}
-}}
-    ";
+
+    public override T Accept<T>(IVisitor<T> visitor) 
+    {{
+        return visitor.Visit{className}{baseName}(this);
+    }}
+}}";
     }
 
     public static void DefineAST(string outputDir, string baseName, IEnumerable<string> types)
@@ -69,9 +73,26 @@ namespace Lox.Generated;
 public abstract class {baseName}
 {{
     {string.Join('\n', definitions)}
+    
+    public abstract T Accept<T>(IVisitor<T> visitor);
+
+    {string.Join('\n', DefineVisitors(baseName, types))}
 }}
-    ";
+";
 
         File.WriteAllText(outputFilename, content);
+    }
+
+    public static string DefineVisitors(string baseName, IEnumerable<string> types)
+    {
+        var typeVisitors = types.Select(type =>
+        {
+            var typeName = type.Split(':')[0].Trim();
+            return @$"T Visit{typeName}{baseName}({typeName} {baseName.ToLower()});";
+        });
+
+        return @$"public interface IVisitor<T> {{
+        {string.Join('\n', typeVisitors)}
+}}";
     }
 }
