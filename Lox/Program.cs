@@ -6,6 +6,8 @@ public class Program
 
     public static void Main(string[] args)
     {
+        ReadLine.AutoCompletionHandler = new AutoCompleteHandler();
+
         if (args.Length > 1)
         {
             Console.WriteLine("Usage: lox [script]");
@@ -34,9 +36,10 @@ public class Program
     {
         while (true)
         {
-            var line = Console.ReadLine();
+            var line = ReadLine.Read("> ");
             if (line is not null)
             {
+                ReadLine.AddHistory(line);
                 Run(line);
             }
 

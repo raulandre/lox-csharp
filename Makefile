@@ -1,9 +1,11 @@
 GENERATED_OUTPUT=Lox/Generated
 
-.PHONY: lox
-astgen: ASTGen/**.cs
+.PHONY: all lox
+all: astgen lox
+
+astgen: ASTGen/*.cs
 	dotnet run --project ASTGen $(GENERATED_OUTPUT)
 	dotnet format Lox
 
-lox:
+lox: astgen
 	dotnet run --project Lox

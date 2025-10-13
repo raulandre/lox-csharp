@@ -14,7 +14,7 @@ public class Scanner(string source)
     public int Current { get; private set; } = 0;
     public int Line { get; private set; } = 1;
 
-    public Dictionary<string, TokenType> Keywords = new()
+    public static Dictionary<string, TokenType> Keywords = new()
     {
         {"and", AND},
         {"class", CLASS},

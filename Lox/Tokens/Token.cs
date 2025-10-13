@@ -9,7 +9,7 @@ public class Token(TokenType type, string lexeme, object? literal, int line)
 
     public override string ToString()
     {
-        var type = Enum.GetName(typeof(TokenType), Type);
+        var type = Enum.GetName(Type);
         return $"{type} {Lexeme} {Literal}";
     }
 }
