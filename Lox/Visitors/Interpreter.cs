@@ -18,9 +18,6 @@ public class Interpreter : Expr.IVisitor<object?>
         var left = Evaluate(expr.Left);
         var right = Evaluate(expr.Right);
 
-        if (left is null || right is null)
-            return null;
-
         return expr.Operator.Type switch
         {
             MINUS => CheckNumberOperands(expr.Operator, left, right).Subtract(),
@@ -74,7 +71,7 @@ public class Interpreter : Expr.IVisitor<object?>
         return true;
     }
 
-    private static bool IsEqual(object left, object right)
+    private static bool IsEqual(object? left, object? right)
     {
         if (left is null && right is null) return true;
         if (left is null) return false;
@@ -82,11 +79,15 @@ public class Interpreter : Expr.IVisitor<object?>
         return left == right;
     }
 
-    private static object? AddOrConcatenate(Token @operator, params object[] objects)
+    private static object? AddOrConcatenate(Token @operator, params object?[] objects)
         => objects switch
         {
         [double l, double r] => l + r,
         [string l, string r] => l + r,
+        [string s, object o] => s + Stringify(o),
+        [null, string s] => Stringify(null) + s,
+        [string s, null] => s + Stringify(null),
+        [object o, string s] => Stringify(o) + s,
             _ => throw new RuntimeError(@operator, "Operands must be two numbers or two strings.")
         };
 
@@ -98,8 +99,8 @@ public class Interpreter : Expr.IVisitor<object?>
 
     private static (double, double) CheckNumberOperands(
         Token @operator,
-        object left,
-        object right
+        object? left,
+        object? right
     )
     {
         if (left is double n1 && right is double n2) return (n1, n2);
