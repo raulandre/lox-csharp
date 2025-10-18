@@ -44,6 +44,7 @@ public class Program
     {
         while (true)
         {
+
 #if DEBUG
             var line = Console.ReadLine();
 #else

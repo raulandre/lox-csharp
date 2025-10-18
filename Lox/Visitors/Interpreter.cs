@@ -59,7 +59,7 @@ public class Interpreter : Expr.IVisitor<object?>
 
         return expr.Operator.Type switch
         {
-            MINUS => -CheckNumberOperand(expr.Operator, right),
+            MINUS => CheckNumberOperand(expr.Operator, right) * -1.0,
             BANG => !IsTruthy(right),
             _ => null,
         };
@@ -71,13 +71,13 @@ public class Interpreter : Expr.IVisitor<object?>
     }
 
     private static bool IsTruthy(object obj)
-    {
-        if (obj is null) return false;
-        if (obj is bool v) return v;
-        if (obj is double d) return d != 0.0;
-
-        return true;
-    }
+        => obj switch
+        {
+            bool b => b,
+            double d => d != 0,
+            null => false,
+            _ => true,
+        };
 
     private static bool IsEqual(object? left, object? right)
     {
