@@ -1,3 +1,4 @@
+using System.Globalization;
 using Lox.Extensions;
 using Lox.Generated;
 using Lox.Tokens;
@@ -124,8 +125,12 @@ public class Interpreter : Expr.IVisitor<object?>
 
     private static string? Stringify(object? obj)
     {
+        var cultureInfo = new CultureInfo("en-US");
         return obj switch
         {
+            double d => Math.Truncate(d) == d 
+                ? Math.Truncate(d).ToString(cultureInfo) 
+                : d.ToString(cultureInfo),
             null => "nil",
             _ => obj.ToString()
         };
