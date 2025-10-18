@@ -66,9 +66,7 @@ public class Interpreter : Expr.IVisitor<object?>
     }
 
     private object? Evaluate(Expr expr)
-    {
-        return expr.Accept(this);
-    }
+        => expr.Accept(this);
 
     private static bool IsTruthy(object obj)
         => obj switch
@@ -87,17 +85,20 @@ public class Interpreter : Expr.IVisitor<object?>
         return left == right;
     }
 
-    private static object? AddOrConcatenate(Token @operator, params object?[] objects)
-        => objects switch
+    private static object? AddOrConcatenate(Token @operator, object? left, object? right)
+    {
+        var objects = new[] { left, right };
+        return objects switch
         {
-        [double l, double r] => l + r,
-        [string l, string r] => l + r,
-        [string s, object o] => s + Stringify(o),
-        [object o, string s] => Stringify(o) + s,
-        [null, string s] => Stringify(null) + s,
-        [string s, null] => s + Stringify(null),
+            [double l, double r] => l + r,
+            [string l, string r] => l + r,
+            [string s, object o] => s + Stringify(o),
+            [object o, string s] => Stringify(o) + s,
+            [null, string s] => Stringify(null) + s,
+            [string s, null] => s + Stringify(null),
             _ => throw new RuntimeError(@operator, "Operands must be two numbers or two strings.")
         };
+    }
 
     private static double CheckNumberOperand(Token @operator, object operand)
     {
