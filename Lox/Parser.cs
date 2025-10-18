@@ -1,6 +1,5 @@
 namespace Lox;
 
-using System.Linq.Expressions;
 using Lox.Generated;
 using Lox.Tokens;
 using static Lox.Tokens.TokenType;
