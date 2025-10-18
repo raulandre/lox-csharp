@@ -7,5 +7,5 @@ astgen: ASTGen/*.cs
 	dotnet run --project ASTGen $(GENERATED_OUTPUT)
 	dotnet format Lox
 
-lox: astgen
+lox: 
 	dotnet run --configuration Release --project Lox
