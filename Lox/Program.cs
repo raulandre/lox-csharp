@@ -10,18 +10,6 @@ public class Program
 
     public static void Main(string[] args)
     {
-        var expression = new Expr.Binary(
-            new Expr.Unary(
-                new Token(TokenType.MINUS, "-", null, 1),
-                new Expr.Literal(123)
-            ),
-            new Token(TokenType.STAR, "*", null, 1),
-            new Expr.Grouping(new Expr.Literal(45.67))
-        );
-
-        Console.WriteLine(new ASTPrinter().Print(expression));
-
-        /*
         ReadLine.AutoCompletionHandler = new AutoCompleteHandler();
 
         if (args.Length > 1)
@@ -37,7 +25,6 @@ public class Program
         {
             RunPrompt();
         }
-        */
     }
 
     private static void RunFile(string path)
@@ -69,15 +56,25 @@ public class Program
         var scanner = new Scanner(source);
         var tokens = scanner.ScanTokens();
 
-        foreach (var token in tokens)
-        {
-            Console.WriteLine(token);
-        }
+        var parser = new Parser(tokens);
+        var expr = parser.Parse();
+
+        if (HadError || expr is null) return;
+
+        Console.WriteLine(new ASTPrinter().Print(expr));
     }
 
     public static void Error(int line, string message)
     {
         Report(line, string.Empty, message);
+    }
+
+    public static void Error(Token token, string message)
+    {
+        if (token.Type == TokenType.EOF)
+            Report(token.Line, $" at '{token.Lexeme}'", message);
+        else
+            Report(token.Line, $" at '{token.Lexeme}'", message);
     }
 
     private static void Report(int line, string where, string message)
