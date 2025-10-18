@@ -9,8 +9,15 @@ public class Interpreter : Expr.IVisitor<object?>
 {
     public void Interpret(Expr expression)
     {
-        var value = Evaluate(expression);
-        Console.WriteLine(Stringify(value));
+        try
+        {
+            var value = Evaluate(expression);
+            Console.WriteLine(Stringify(value));
+        }
+        catch (RuntimeError error)
+        {
+            Program.RuntimeError(error);
+        }
     }
 
     public object? VisitBinaryExpr(Expr.Binary expr)
@@ -21,9 +28,9 @@ public class Interpreter : Expr.IVisitor<object?>
         return expr.Operator.Type switch
         {
             MINUS => CheckNumberOperands(expr.Operator, left, right).Subtract(),
-            SLASH => CheckNumberOperands(expr.Operator, left, right).Divide(),
             STAR => CheckNumberOperands(expr.Operator, left, right).Multiply(),
             PLUS => AddOrConcatenate(expr.Operator, left, right),
+            SLASH => CheckNumberOperands(expr.Operator, left, right).Apply((l, r) => CheckedDivision(expr.Operator, l, r)),
             GREATER => CheckNumberOperands(expr.Operator, left, right).Apply((l, r) => l > r),
             GREATER_EQUAL => CheckNumberOperands(expr.Operator, left, right).Apply((l, r) => l >= r),
             LESS => CheckNumberOperands(expr.Operator, left, right).Apply((l, r) => l < r),
@@ -85,9 +92,9 @@ public class Interpreter : Expr.IVisitor<object?>
         [double l, double r] => l + r,
         [string l, string r] => l + r,
         [string s, object o] => s + Stringify(o),
+        [object o, string s] => Stringify(o) + s,
         [null, string s] => Stringify(null) + s,
         [string s, null] => s + Stringify(null),
-        [object o, string s] => Stringify(o) + s,
             _ => throw new RuntimeError(@operator, "Operands must be two numbers or two strings.")
         };
 
@@ -105,6 +112,14 @@ public class Interpreter : Expr.IVisitor<object?>
     {
         if (left is double n1 && right is double n2) return (n1, n2);
         throw new RuntimeError(@operator, "Operands must be numbers.");
+    }
+
+    private static double CheckedDivision(Token @operator, double a, double b)
+    {
+        if (b == 0)
+            throw new RuntimeError(@operator, "Division by zero detected.");
+
+        return a / b;
     }
 
     private static string? Stringify(object? obj)
