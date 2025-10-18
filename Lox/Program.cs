@@ -1,5 +1,4 @@
-﻿using Lox.Generated;
-using Lox.Tokens;
+﻿using Lox.Tokens;
 using Lox.Visitors;
 
 namespace Lox;

@@ -8,4 +8,4 @@ astgen: ASTGen/*.cs
 	dotnet format Lox
 
 lox: astgen
-	dotnet run --project Lox
+	dotnet run --configuration Release --project Lox

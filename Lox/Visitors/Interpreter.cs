@@ -21,17 +21,16 @@ public class Interpreter : Expr.IVisitor<object?>
         if (left is null || right is null)
             return null;
 
-        var checkedOperands = CheckNumberOperands(expr.Operator, left, right);
         return expr.Operator.Type switch
         {
-            MINUS => checkedOperands.Subtract(),
-            SLASH => checkedOperands.Divide(),
-            STAR => checkedOperands.Multiply(),
+            MINUS => CheckNumberOperands(expr.Operator, left, right).Subtract(),
+            SLASH => CheckNumberOperands(expr.Operator, left, right).Divide(),
+            STAR => CheckNumberOperands(expr.Operator, left, right).Multiply(),
             PLUS => AddOrConcatenate(expr.Operator, left, right),
-            GREATER => checkedOperands.Apply((l, r) => l > r),
-            GREATER_EQUAL => checkedOperands.Apply((l, r) => l >= r),
-            LESS => checkedOperands.Apply((l, r) => l < r),
-            LESS_EQUAL => checkedOperands.Apply((l, r) => l <= r),
+            GREATER => CheckNumberOperands(expr.Operator, left, right).Apply((l, r) => l > r),
+            GREATER_EQUAL => CheckNumberOperands(expr.Operator, left, right).Apply((l, r) => l >= r),
+            LESS => CheckNumberOperands(expr.Operator, left, right).Apply((l, r) => l < r),
+            LESS_EQUAL => CheckNumberOperands(expr.Operator, left, right).Apply((l, r) => l <= r),
             BANG_EQUAL => !IsEqual(left, right),
             EQUAL_EQUAL => IsEqual(left, right),
             _ => null
