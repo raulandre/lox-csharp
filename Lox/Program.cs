@@ -7,6 +7,9 @@ namespace Lox;
 public class Program
 {
     public static bool HadError { get; private set; }
+    public static bool HadRuntimeError { get; private set; }
+
+    private static readonly Interpreter Interpreter = new();
 
     public static void Main(string[] args)
     {
@@ -33,14 +36,21 @@ public class Program
         Run(content);
 
         if (HadError)
-            Environment.Exit(1);
+            Environment.Exit(65);
+        if (HadRuntimeError)
+            Environment.Exit(70);
     }
 
     private static void RunPrompt()
     {
         while (true)
         {
+#if DEBUG
+            var line = Console.ReadLine();
+#else
             var line = ReadLine.Read("> ");
+#endif
+
             if (line is not null)
             {
                 ReadLine.AddHistory(line);
@@ -61,7 +71,7 @@ public class Program
 
         if (HadError || expr is null) return;
 
-        Console.WriteLine(new ASTPrinter().Print(expr));
+        Interpreter.Interpret(expr);
     }
 
     public static void Error(int line, string message)
@@ -75,6 +85,13 @@ public class Program
             Report(token.Line, $"at '{token.Lexeme}'", message);
         else
             Report(token.Line, $"at '{token.Lexeme}'", message);
+    }
+
+    public static void RuntimeError(RuntimeError error)
+    {
+        Console.WriteLine($@"{error.Message}
+[line {error.Token.Line}]");
+        HadRuntimeError = true;
     }
 
     private static void Report(int line, string where, string message)
