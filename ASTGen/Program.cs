@@ -19,6 +19,7 @@ AST.DefineAST(outputDir, "Expr",
 
 AST.DefineAST(outputDir, "Stmt",
 [
+    "Block : List<Stmt?> statements",
     "Expression : Expr expr",
     "Print : Expr expr",
     "Var : Token name, Expr? initializer"

@@ -8,7 +8,7 @@ namespace Lox.Visitors;
 
 public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 {
-    private readonly Environment Environment = new();
+    private Environment Environment = new();
 
     public void Interpret(List<Stmt?> statements)
     {
@@ -26,8 +26,32 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         }
     }
 
-    private void Execute(Stmt statement)
-        => statement.Accept(this);
+    private void Execute(Stmt? statement)
+        => statement?.Accept(this);
+
+    private void ExecuteBlock(List<Stmt?> statements, Environment environment)
+    {
+        var previousEnv = Environment;
+        try
+        {
+            Environment = environment;
+
+            foreach (var stmt in statements)
+            {
+                Execute(stmt);
+            }
+        }
+        finally
+        {
+            Environment = previousEnv;
+        }
+    }
+
+    public object? VisitBlockStmt(Stmt.Block block)
+    {
+        ExecuteBlock(block.Statements, new Environment(Environment));
+        return null;
+    }
 
     public object? VisitBinaryExpr(Expr.Binary expr)
     {
