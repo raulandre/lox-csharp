@@ -6,20 +6,28 @@ using static Lox.Tokens.TokenType;
 
 namespace Lox.Visitors;
 
-public class Interpreter : Expr.IVisitor<object?>
+public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 {
-    public void Interpret(Expr expression)
+    private readonly Environment Environment = new();
+
+    public void Interpret(List<Stmt?> statements)
     {
         try
         {
-            var value = Evaluate(expression);
-            Console.WriteLine(Stringify(value));
+            foreach (var stmt in statements)
+            {
+                if (stmt is not null)
+                    Execute(stmt);
+            }
         }
         catch (RuntimeError error)
         {
             Program.RuntimeError(error);
         }
     }
+
+    private void Execute(Stmt statement)
+        => statement.Accept(this);
 
     public object? VisitBinaryExpr(Expr.Binary expr)
     {
@@ -65,6 +73,11 @@ public class Interpreter : Expr.IVisitor<object?>
         };
     }
 
+    public object? VisitVariableExpr(Expr.Variable expr)
+    {
+        return Environment.Get(expr.Name);
+    }
+
     private object? Evaluate(Expr expr)
         => expr.Accept(this);
 
@@ -90,13 +103,13 @@ public class Interpreter : Expr.IVisitor<object?>
         var objects = new[] { left, right };
         return objects switch
         {
-            [double l, double r] => l + r,
-            [string l, string r] => l + r,
-            [string s, object o] => s + Stringify(o),
-            [object o, string s] => Stringify(o) + s,
-            [null, string s] => Stringify(null) + s,
-            [string s, null] => s + Stringify(null),
-            _ => throw new RuntimeError(@operator, "Operands must be two numbers or two strings.")
+        [double l, double r] => l + r,
+        [string l, string r] => l + r,
+        [string s, object o] => s + Stringify(o),
+        [object o, string s] => Stringify(o) + s,
+        [null, string s] => Stringify(null) + s,
+        [string s, null] => s + Stringify(null),
+            _ => throw new RuntimeError(@operator, "Invalid operands for '+' operator.")
         };
     }
 
@@ -129,11 +142,41 @@ public class Interpreter : Expr.IVisitor<object?>
         var cultureInfo = new CultureInfo("en-US");
         return obj switch
         {
-            double d => Math.Truncate(d) == d 
-                ? Math.Truncate(d).ToString(cultureInfo) 
+            double d => Math.Truncate(d) == d
+                ? Math.Truncate(d).ToString(cultureInfo)
                 : d.ToString(cultureInfo),
             null => "nil",
             _ => obj.ToString()
         };
+    }
+
+    public object? VisitExpressionStmt(Stmt.Expression stmt)
+    {
+        Evaluate(stmt.Expr);
+        return null;
+    }
+
+    public object? VisitPrintStmt(Stmt.Print stmt)
+    {
+        var value = Evaluate(stmt.Expr);
+        Console.WriteLine(Stringify(value));
+        return null;
+    }
+
+    public object? VisitVarStmt(Stmt.Var stmt)
+    {
+        object? value = null;
+        if (stmt.Initializer is not null)
+            value = Evaluate(stmt.Initializer);
+
+        Environment.Define(stmt.Name.Lexeme, value);
+        return null;
+    }
+
+    public object? VisitAssignExpr(Expr.Assign expr)
+    {
+        var value = Evaluate(expr.Value);
+        Environment.Assign(expr.Name, value);
+        return value;
     }
 }

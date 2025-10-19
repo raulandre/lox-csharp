@@ -17,7 +17,7 @@ public class Program
         if (args.Length > 1)
         {
             Console.WriteLine("Usage: lox [script]");
-            Environment.Exit(1);
+            System.Environment.Exit(1);
         }
         else if (args.Length == 1)
         {
@@ -35,9 +35,9 @@ public class Program
         Run(content);
 
         if (HadError)
-            Environment.Exit(65);
+            System.Environment.Exit(65);
         if (HadRuntimeError)
-            Environment.Exit(70);
+            System.Environment.Exit(70);
     }
 
     private static void RunPrompt()
@@ -67,11 +67,11 @@ public class Program
         var tokens = scanner.ScanTokens();
 
         var parser = new Parser(tokens);
-        var expr = parser.Parse();
+        var statements = parser.Parse();
 
-        if (HadError || expr is null) return;
+        if (HadError || statements is null) return;
 
-        Interpreter.Interpret(expr);
+        Interpreter.Interpret(statements);
     }
 
     public static void Error(int line, string message)

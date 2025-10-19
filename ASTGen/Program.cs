@@ -9,10 +9,19 @@ if (args.Length != 1)
 var outputDir = args[0];
 AST.DefineAST(outputDir, "Expr",
 [
+    "Assign : Token name, Expr value",
     "Binary : Expr left, Token @operator, Expr right",
     "Grouping : Expr expression",
     "Literal : object? value",
-    "Unary : Token @operator, Expr right"
+    "Unary : Token @operator, Expr right",
+    "Variable : Token name"
+]);
+
+AST.DefineAST(outputDir, "Stmt",
+[
+    "Expression : Expr expr",
+    "Print : Expr expr",
+    "Var : Token name, Expr? initializer"
 ]);
 
 return 0;
