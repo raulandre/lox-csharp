@@ -13,6 +13,7 @@ AST.DefineAST(outputDir, "Expr",
     "Binary : Expr left, Token @operator, Expr right",
     "Grouping : Expr expression",
     "Literal : object? value",
+    "Logical : Expr left, Token @operator, Expr right",
     "Unary : Token @operator, Expr right",
     "Variable : Token name"
 ]);
@@ -21,7 +22,9 @@ AST.DefineAST(outputDir, "Stmt",
 [
     "Block : List<Stmt?> statements",
     "Expression : Expr expr",
+    "If: Expr condition, Stmt thenBranch, Stmt? elseBranch",
     "Print : Expr expr",
+    "While : Expr condition, Stmt body",
     "Var : Token name, Expr? initializer"
 ]);
 

@@ -45,10 +45,80 @@ public class Parser(List<Token> tokens)
 
     private Stmt Statement()
     {
+        if (Match(FOR)) return ForStatement();
+        if (Match(IF)) return IfStatement();
         if (Match(PRINT)) return PrintStatement();
+        if (Match(WHILE)) return WhileStatement();
         if (Match(LEFT_BRACE)) return new Stmt.Block(Block());
 
         return ExpressionStatement();
+    }
+
+    private Stmt ForStatement()
+    {
+        Consume(LEFT_PAREN, "Expected '(' after 'for'.");
+
+        Stmt? initializer;
+        Expr? condition = null;
+        Expr? increment = null;
+
+        if (Match(SEMICOLON))
+            initializer = null;
+        else if (Match(VAR))
+            initializer = VarDeclaration();
+        else
+            initializer = ExpressionStatement();
+
+        if (!Check(SEMICOLON))
+            condition = Expression();
+        Consume(SEMICOLON, "Expected ';' after condition.");
+
+        if (!Check(RIGHT_PAREN))
+            increment = Expression();
+        Consume(RIGHT_PAREN, "Expected ')' after 'for'.");
+
+        var body = Statement();
+
+        if (increment is not null)
+        {
+            body = new Stmt.Block(
+            [
+                body,
+                new Stmt.Expression(increment)
+            ]);
+        }
+
+        condition ??= new Expr.Literal(true);
+        body = new Stmt.While(condition, body);
+
+        if (initializer is not null)
+            body = new Stmt.Block([
+                initializer, body
+            ]);
+
+        return body;
+    }
+
+    private Stmt WhileStatement()
+    {
+        Consume(LEFT_PAREN, "Expected '(' after 'while'.");
+        var condition = Expression();
+        Consume(RIGHT_PAREN, "Expected ')' after condition.");
+
+        var body = Statement();
+        return new Stmt.While(condition, body);
+    }
+
+    private Stmt IfStatement()
+    {
+        Consume(LEFT_PAREN, "Expected '(' after 'if'.");
+        var condition = Expression();
+        Consume(RIGHT_PAREN, "Expected ')' after condition.");
+
+        var thenBranch = Statement();
+        var elseBranch = Match(ELSE) ? Statement() : null;
+
+        return new Stmt.If(condition, thenBranch, elseBranch);
     }
 
     private List<Stmt?> Block()
@@ -86,7 +156,7 @@ public class Parser(List<Token> tokens)
 
     private Expr Assignment()
     {
-        var expr = Equality();
+        var expr = Or();
 
         if (Match(EQUAL))
         {
@@ -100,6 +170,34 @@ public class Parser(List<Token> tokens)
             }
 
             Error(equals, "Invalid assignment target.");
+        }
+
+        return expr;
+    }
+
+    private Expr Or()
+    {
+        var expr = And();
+
+        while (Match(OR))
+        {
+            var @operator = Previous();
+            var right = And();
+            expr = new Expr.Logical(expr, @operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expr And()
+    {
+        var expr = Equality();
+
+        while (Match(AND))
+        {
+            var @operator = Previous();
+            var right = Equality();
+            expr = new Expr.Logical(expr, @operator, right);
         }
 
         return expr;

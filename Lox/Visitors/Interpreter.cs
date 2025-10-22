@@ -84,6 +84,22 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         return expr.Value;
     }
 
+    public object? VisitLogicalExpr(Expr.Logical expr)
+    {
+        var left = Evaluate(expr.Left);
+
+        if (expr.Operator.Type == OR)
+        {
+            if (IsTruthy(left)) return left;
+        }
+        else
+        {
+            if (!IsTruthy(left)) return left;
+        }
+
+        return Evaluate(expr.Right);
+    }
+
     public object? VisitUnaryExpr(Expr.Unary expr)
     {
         var right = Evaluate(expr.Right);
@@ -102,10 +118,10 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         return Environment.Get(expr.Name);
     }
 
-    private object? Evaluate(Expr expr)
-        => expr.Accept(this);
+    private object? Evaluate(Expr? expr)
+        => expr?.Accept(this);
 
-    private static bool IsTruthy(object obj)
+    private static bool IsTruthy(object? obj)
         => obj switch
         {
             bool b => b,
@@ -180,6 +196,16 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         return null;
     }
 
+    public object? VisitIfStmt(Stmt.If stmt)
+    {
+        if (IsTruthy(Evaluate(stmt.Condition)))
+            Execute(stmt.ThenBranch);
+        else if (stmt.ElseBranch is not null)
+            Execute(stmt.ElseBranch);
+
+        return null;
+    }
+
     public object? VisitPrintStmt(Stmt.Print stmt)
     {
         var value = Evaluate(stmt.Expr);
@@ -194,6 +220,16 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
             value = Evaluate(stmt.Initializer);
 
         Environment.Define(stmt.Name.Lexeme, value);
+        return null;
+    }
+
+    public object? VisitWhileStmt(Stmt.While stmt)
+    {
+        while (IsTruthy(Evaluate(stmt.Condition)))
+        {
+            Execute(stmt.Body);
+        }
+
         return null;
     }
 
