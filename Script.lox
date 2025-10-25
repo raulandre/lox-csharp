@@ -8,8 +8,23 @@ fun factorialtc(n, f) {
         print f;
         return;
     }
-    
+
     factorialtc(n - 1, n * f);
 }
 
 print factorialtc(12, 1);
+
+fun makeCounter() {
+    var i = 0;
+    fun count() {
+        i = i + 1;
+        print i;
+    }
+
+    return count;
+}
+
+var counter = makeCounter();
+for(var i = 0; i < 10; i = i + 1) {
+    counter();
+}

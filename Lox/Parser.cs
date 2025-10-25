@@ -79,7 +79,7 @@ public class Parser(List<Token> tokens)
         return ExpressionStatement();
     }
 
-    private Stmt ReturnStatement()
+    private Stmt.Return ReturnStatement()
     {
         var keyword = Previous();
 
@@ -136,7 +136,7 @@ public class Parser(List<Token> tokens)
         return body;
     }
 
-    private Stmt WhileStatement()
+    private Stmt.While WhileStatement()
     {
         Consume(LEFT_PAREN, "Expected '(' after 'while'.");
         var condition = Expression();
@@ -146,7 +146,7 @@ public class Parser(List<Token> tokens)
         return new Stmt.While(condition, body);
     }
 
-    private Stmt IfStatement()
+    private Stmt.If IfStatement()
     {
         Consume(LEFT_PAREN, "Expected '(' after 'if'.");
         var condition = Expression();
@@ -324,7 +324,7 @@ public class Parser(List<Token> tokens)
         return expr;
     }
 
-    private Expr FinishCall(Expr callee)
+    private Expr.Call FinishCall(Expr callee)
     {
         var arguments = new List<Expr>();
 
