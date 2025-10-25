@@ -26,6 +26,7 @@ AST.DefineAST(outputDir, "Stmt",
     "Function : Token name, List<Token> @params, List<Stmt?> body",
     "If: Expr condition, Stmt thenBranch, Stmt? elseBranch",
     "Print : Expr expr",
+    "Return : Token keyword, Expr? value",
     "While : Expr condition, Stmt body",
     "Var : Token name, Expr? initializer"
 ]);

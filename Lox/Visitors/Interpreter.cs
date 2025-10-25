@@ -159,7 +159,7 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         if (left is null && right is null) return true;
         if (left is null) return false;
 
-        return left == right;
+        return left.Equals(right);
     }
 
     private static object? AddOrConcatenate(Token @operator, object? left, object? right)
@@ -242,6 +242,15 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         var value = Evaluate(stmt.Expr);
         Console.WriteLine(Stringify(value));
         return null;
+    }
+
+    public object? VisitReturnStmt(Stmt.Return stmt)
+    {
+        object? value = null;
+        if (stmt.Value is not null)
+            value = Evaluate(stmt.Value);
+
+        throw new Return(value);
     }
 
     public object? VisitVarStmt(Stmt.Var stmt)

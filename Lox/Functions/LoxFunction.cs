@@ -16,7 +16,15 @@ public class LoxFunction(Stmt.Function declaration) : ICallable
         foreach (var arg in args.Index())
             env.Define(Declaration.Params[arg.Index].Lexeme, arg.Item);
 
-        interpreter.ExecuteBlock(Declaration.Body, env);
+        try
+        {
+            interpreter.ExecuteBlock(Declaration.Body, env);
+        }
+        catch (Return @return)
+        {
+            return @return.Value;
+        }
+
         return null;
     }
 

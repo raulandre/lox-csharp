@@ -1,5 +1,15 @@
-fun greet(first, last) {
-    print "Hello, " + first + " " + last + "!";
+fun factorial(n) {
+    if (n == 0) return 1;
+    return n * factorial(n - 1);
 }
 
-greet("penis", "music");
+fun factorialtc(n, f) {
+    if(n == 0) {
+        print f;
+        return;
+    }
+    
+    factorialtc(n - 1, n * f);
+}
+
+print factorialtc(12, 1);
