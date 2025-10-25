@@ -21,6 +21,7 @@ public class Parser(List<Token> tokens)
     {
         try
         {
+            if (Match(FUN)) return Function("function");
             if (Match(VAR)) return VarDeclaration();
             return Statement();
         }
@@ -29,6 +30,29 @@ public class Parser(List<Token> tokens)
             Synchronize();
             return null;
         }
+    }
+
+    private Stmt.Function Function(string kind)
+    {
+        var name = Consume(IDENTIFIER, $"Expected {kind} name.");
+        Consume(LEFT_PAREN, $"Expected '(' after {kind} name.");
+
+        var @params = new List<Token>();
+        if (!Check(RIGHT_PAREN))
+        {
+            do
+            {
+                if (@params.Count >= 255)
+                    Error(Peek(), "Parameter limit exceeded (255).");
+                @params.Add(Consume(IDENTIFIER, "Expected parameter name."));
+            } while (Match(COMMA));
+        }
+
+        Consume(RIGHT_PAREN, $"Expected ')' after {kind} name.");
+        Consume(LEFT_BRACE, $"Expected '{{' before {kind} body.");
+        var body = Block();
+
+        return new Stmt.Function(name, @params, body);
     }
 
     private Stmt.Var VarDeclaration()
@@ -269,7 +293,41 @@ public class Parser(List<Token> tokens)
             return new Expr.Unary(@operator, right);
         }
 
-        return Primary();
+        return Call();
+    }
+
+    private Expr Call()
+    {
+        var expr = Primary();
+
+        while (true)
+        {
+            if (Match(LEFT_PAREN))
+                expr = FinishCall(expr);
+            else
+                break;
+        }
+
+        return expr;
+    }
+
+    private Expr FinishCall(Expr callee)
+    {
+        var arguments = new List<Expr>();
+
+        if (!Check(RIGHT_PAREN))
+        {
+            do
+            {
+                if (arguments.Count >= 255)
+                    Error(Peek(), "Argument limit exceeded (255).");
+                arguments.Add(Expression());
+            } while (Match(COMMA));
+        }
+
+        var paren = Consume(RIGHT_PAREN, "Expected ')' after arguments.");
+
+        return new Expr.Call(callee, paren, arguments);
     }
 
     private Expr Primary()

@@ -1,6 +1,7 @@
 using System.Globalization;
 using Lox.Extensions;
 using Lox.Generated;
+using Lox.Functions;
 using Lox.Tokens;
 using static Lox.Tokens.TokenType;
 
@@ -8,7 +9,13 @@ namespace Lox.Visitors;
 
 public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 {
-    private Environment Environment = new();
+    public static Environment Globals { get; private set; } = new();
+    private Environment Environment = Globals;
+
+    public Interpreter()
+    {
+        Globals.Define("clock", new Clock());
+    }
 
     public void Interpret(List<Stmt?> statements)
     {
@@ -29,7 +36,7 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     private void Execute(Stmt? statement)
         => statement?.Accept(this);
 
-    private void ExecuteBlock(List<Stmt?> statements, Environment environment)
+    public void ExecuteBlock(List<Stmt?> statements, Environment environment)
     {
         var previousEnv = Environment;
         try
@@ -72,6 +79,23 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
             EQUAL_EQUAL => IsEqual(left, right),
             _ => null
         };
+    }
+
+    public object? VisitCallExpr(Expr.Call expr)
+    {
+        var callee = Evaluate(expr.Callee);
+
+        if (callee is not ICallable)
+            throw new RuntimeError(expr.Paren, "Calling non-callable object.");
+
+        var args = expr.Arguments.Select(Evaluate);
+
+        var function = callee as ICallable;
+
+        if (args.Count() != function!.Arity())
+            throw new RuntimeError(expr.Paren, $"Expected {function.Arity()} arguments in function call, got {args.Count()}.");
+
+        return function!.Call(this, args);
     }
 
     public object? VisitGroupingExpr(Expr.Grouping expr)
@@ -193,6 +217,13 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     public object? VisitExpressionStmt(Stmt.Expression stmt)
     {
         Evaluate(stmt.Expr);
+        return null;
+    }
+
+    public object? VisitFunctionStmt(Stmt.Function stmt)
+    {
+        var function = new LoxFunction(stmt);
+        Environment.Define(stmt.Name.Lexeme, function);
         return null;
     }
 
