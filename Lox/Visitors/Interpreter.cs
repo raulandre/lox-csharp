@@ -11,6 +11,7 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 {
     public static Environment Globals { get; private set; } = new();
     private Environment Environment = Globals;
+    private Dictionary<Expr, int> Locals = new();
 
     public Interpreter()
     {
@@ -31,6 +32,11 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         {
             Program.RuntimeError(error);
         }
+    }
+
+    public void Resolve(Expr expr, int depth)
+    {
+        Locals[expr] = depth;
     }
 
     private void Execute(Stmt? statement)
@@ -139,7 +145,20 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 
     public object? VisitVariableExpr(Expr.Variable expr)
     {
-        return Environment.Get(expr.Name);
+        return LookUpVariable(expr.Name, expr);
+    }
+
+    public object? LookUpVariable(Token name, Expr expr)
+    {
+        if(Locals.ContainsKey(expr))
+        {
+            var distance = Locals[expr];
+            return Environment.GetAt(distance, name.Lexeme);
+        }
+        else
+        {
+            return Globals.Get(name);
+        }
     }
 
     private object? Evaluate(Expr? expr)
@@ -276,7 +295,15 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     public object? VisitAssignExpr(Expr.Assign expr)
     {
         var value = Evaluate(expr.Value);
-        Environment.Assign(expr.Name, value);
+        if(Locals.ContainsKey(expr))
+        {
+            var distance = Locals[expr];
+            Environment.AssignAt(distance, expr.Name, value);
+        }
+        else
+        {
+            Globals.Assign(expr.Name, expr);
+        }
         return value;
     }
 }

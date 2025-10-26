@@ -1,30 +1,23 @@
-fun factorial(n) {
-    if (n == 0) return 1;
-    return n * factorial(n - 1);
-}
-
-fun factorialtc(n, f) {
-    if(n == 0) {
-        print f;
-        return;
+var a = "global";
+{
+    fun showA() {
+        print a;
     }
 
-    factorialtc(n - 1, n * f);
+    showA();
+    var a = "block";
+    showA();
 }
-
-print factorialtc(12, 1);
 
 fun makeCounter() {
-    var i = 0;
-    fun count() {
-        i = i + 1;
-        print i;
-    }
+    var i = 0; 
+    fun counter() { 
+        print i; 
+        i = i + 1; 
+    } 
+    return counter; 
+} 
 
-    return count;
-}
-
-var counter = makeCounter();
-for(var i = 0; i < 10; i = i + 1) {
+var counter = makeCounter(); 
+for(var i = 0; i < 3; i = i + 1)
     counter();
-}

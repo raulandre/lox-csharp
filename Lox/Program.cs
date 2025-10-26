@@ -71,6 +71,11 @@ public class Program
 
         if (HadError || statements is null) return;
 
+        var resolver = new Resolver(Interpreter);
+        resolver.Resolve(statements);
+
+        if (HadError) return;
+
         Interpreter.Interpret(statements);
     }
 
