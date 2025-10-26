@@ -1,23 +1,18 @@
-var a = "global";
-{
-    fun showA() {
-        print a;
+class Car {
+    init(model) {
+        this.model = model;
     }
 
-    showA();
-    var a = "block";
-    showA();
+    honk() {
+        print "beep beep!";
+    }
+
+    printModel() {
+        print this.model;
+    }
 }
 
-fun makeCounter() {
-    var i = 0; 
-    fun counter() { 
-        print i; 
-        i = i + 1; 
-    } 
-    return counter; 
-} 
+var car = Car("AE86");
+car.honk();
 
-var counter = makeCounter(); 
-for(var i = 0; i < 3; i = i + 1)
-    counter();
+car.printModel();

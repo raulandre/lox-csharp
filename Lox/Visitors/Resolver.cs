@@ -1,3 +1,4 @@
+using System.Diagnostics.Tracing;
 using System.Text;
 using Lox.Generated;
 using Lox.Tokens;
@@ -9,6 +10,7 @@ public class Resolver(Interpreter interpreter) : Expr.IVisitor<object?>, Stmt.IV
     public Interpreter Interpreter { get; private set; } = interpreter;
     public Stack<Dictionary<string, bool>> Scopes { get; private set; } = new();
     public FunctionType CurrentFunction { get; private set; } = FunctionType.NONE;
+    public ClassType CurrentClass { get; private set; } = ClassType.NONE;
 
     public object? VisitAssignExpr(Expr.Assign expr)
     {
@@ -28,7 +30,7 @@ public class Resolver(Interpreter interpreter) : Expr.IVisitor<object?>, Stmt.IV
     public object? VisitVarStmt(Stmt.Var stmt)
     {
         Declare(stmt.Name);
-        if(stmt.Initializer is not null)
+        if (stmt.Initializer is not null)
         {
             Resolve(stmt.Initializer);
         }
@@ -77,13 +79,19 @@ public class Resolver(Interpreter interpreter) : Expr.IVisitor<object?>, Stmt.IV
 
     public object? VisitReturnStmt(Stmt.Return stmt)
     {
-        if(CurrentFunction == FunctionType.NONE)
+        if (CurrentFunction == FunctionType.NONE)
         {
             Program.Error(stmt.Keyword, "Invalid usage of 'return' outside function scope.");
         }
 
         if (stmt.Value is not null)
+        {
+            if (CurrentFunction == FunctionType.INITIALIZER)
+            {
+                Program.Error(stmt.Keyword, "Invalid usage of 'return' inside initializer.");
+            }
             Resolve(stmt.Value);
+        }
         return null;
     }
 
@@ -99,7 +107,13 @@ public class Resolver(Interpreter interpreter) : Expr.IVisitor<object?>, Stmt.IV
         Resolve(expr.Callee);
         foreach (var arg in expr.Arguments)
             Resolve(arg);
-        return null;    
+        return null;
+    }
+
+    public object? VisitGetExpr(Expr.Get expr)
+    {
+        Resolve(expr.Object);
+        return null;
     }
 
     public object? VisitGroupingExpr(Expr.Grouping expr)
@@ -120,6 +134,24 @@ public class Resolver(Interpreter interpreter) : Expr.IVisitor<object?>, Stmt.IV
         return null;
     }
 
+    public object? VisitSetExpr(Expr.Set expr)
+    {
+        Resolve(expr.Value);
+        Resolve(expr.Object);
+        return null;
+    }
+
+    public object? VisitThisExpr(Expr.This expr)
+    {
+        if(CurrentClass == ClassType.NONE)
+        {
+            Program.Error(expr.Keyword, "Invalid usage of 'this' outside class.");
+            return null;
+        }
+        ResolveLocal(expr, expr.Keyword);
+        return null;
+    }
+
     public object? VisitUnaryExpr(Expr.Unary expr)
     {
         Resolve(expr.Right);
@@ -130,6 +162,31 @@ public class Resolver(Interpreter interpreter) : Expr.IVisitor<object?>, Stmt.IV
     {
         Resolve(expr.Left);
         Resolve(expr.Right);
+        return null;
+    }
+
+    public object? VisitClassStmt(Stmt.Class stmt)
+    {
+        var enclosingClass = CurrentClass;
+        CurrentClass = ClassType.CLASS;
+        Declare(stmt.Name);
+        Define(stmt.Name);
+
+        BeginScope();
+        Scopes.Peek().Add("this", true);
+
+        foreach (var method in stmt.Methods)
+        {
+            var declaration = FunctionType.METHOD;
+
+            if (method.Name.Lexeme.Equals("init"))
+                declaration = FunctionType.INITIALIZER;
+
+            ResolveFunction(method, declaration);
+        }
+
+        EndScope();
+        CurrentClass = enclosingClass;
         return null;
     }
 
@@ -204,7 +261,7 @@ public class Resolver(Interpreter interpreter) : Expr.IVisitor<object?>, Stmt.IV
         var enclosingFunction = CurrentFunction;
         CurrentFunction = functionType;
         BeginScope();
-        foreach(var param in function.Params)
+        foreach (var param in function.Params)
         {
             Declare(param);
             Define(param);
@@ -220,5 +277,13 @@ public class Resolver(Interpreter interpreter) : Expr.IVisitor<object?>, Stmt.IV
 public enum FunctionType
 {
     NONE = 0,
-    FUNCTION
+    FUNCTION,
+    METHOD,
+    INITIALIZER
+}
+
+public enum ClassType
+{
+    NONE = 0,
+    CLASS
 }
