@@ -348,7 +348,7 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         }
         else
         {
-            Globals.Assign(expr.Name, expr);
+            Globals.Assign(expr.Name, value);
         }
         return value;
     }

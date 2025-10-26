@@ -44,12 +44,19 @@ public class Program
     {
         while (true)
         {
-
 #if DEBUG
-            var line = Console.ReadLine();
+            static string? readLine() => Console.ReadLine();
 #else
-            var line = ReadLine.Read("> ");
+            static string readLine() => ReadLine.Read(">> ");
 #endif
+
+            var line = readLine();
+            while (line?.EndsWith('\\') == true)
+            {
+                line += readLine();
+            }
+
+            line = line?.Replace("\\", string.Empty);
 
             if (line is not null)
             {
