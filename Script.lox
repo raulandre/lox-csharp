@@ -1,18 +1,17 @@
-class Car {
-    init(model) {
-        this.model = model;
-    }
-
-    honk() {
-        print "beep beep!";
-    }
-
-    printModel() {
-        print this.model;
+class A {
+    method() {
+        print "A method";
     }
 }
 
-var car = Car("AE86");
-car.honk();
+class B < A {
+    method() {
+        print "B method";
+    }
+    test() {
+        super.method();
+    }
+}
 
-car.printModel();
+class C < B { }
+C().test();

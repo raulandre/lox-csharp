@@ -3,16 +3,18 @@ using Lox.Visitors;
 
 namespace Lox.OOP;
 
-public class LoxClass(string name, Dictionary<string, LoxFunction> methods) : ICallable
+public class LoxClass(string name, Dictionary<string, LoxFunction> methods, LoxClass superclass) : ICallable
 {
     public string Name { get; private set; } = name;
     public Dictionary<string, LoxFunction> Methods { get; private set; } = methods;
+    public LoxClass Superclass { get; private set; } = superclass;
 
     public LoxFunction? FindMethod(string name)
     {
         if (Methods.TryGetValue(name, out var method))
             return method;
-        return null;
+
+        return Superclass?.FindMethod(name);
     }
 
     public int Arity()

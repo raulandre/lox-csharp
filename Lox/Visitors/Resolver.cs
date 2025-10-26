@@ -141,9 +141,19 @@ public class Resolver(Interpreter interpreter) : Expr.IVisitor<object?>, Stmt.IV
         return null;
     }
 
+    public object? VisitSuperExpr(Expr.Super expr)
+    {
+        if (CurrentClass == ClassType.NONE)
+            Program.Error(expr.Keyword, "Invalid usage of 'super' outside class.");
+        else if (CurrentClass != ClassType.SUBCLASS)
+            Program.Error(expr.Keyword, "Invalid usage of 'super' in class with no superclass.");
+        ResolveLocal(expr, expr.Keyword);
+        return null;
+    }
+
     public object? VisitThisExpr(Expr.This expr)
     {
-        if(CurrentClass == ClassType.NONE)
+        if (CurrentClass == ClassType.NONE)
         {
             Program.Error(expr.Keyword, "Invalid usage of 'this' outside class.");
             return null;
@@ -172,6 +182,21 @@ public class Resolver(Interpreter interpreter) : Expr.IVisitor<object?>, Stmt.IV
         Declare(stmt.Name);
         Define(stmt.Name);
 
+        if (stmt.Name.Lexeme.Equals(stmt.Superclass?.Name.Lexeme))
+            Program.Error(stmt.Superclass.Name, "Cyclic inheritance detected.");
+
+        if (stmt.Superclass is not null)
+        {
+            CurrentClass = ClassType.SUBCLASS;
+            Resolve(stmt.Superclass);
+        }
+
+        if (stmt.Superclass is not null)
+        {
+            BeginScope();
+            Scopes.Peek().Add("super", true);
+        }
+
         BeginScope();
         Scopes.Peek().Add("this", true);
 
@@ -186,6 +211,7 @@ public class Resolver(Interpreter interpreter) : Expr.IVisitor<object?>, Stmt.IV
         }
 
         EndScope();
+        if (stmt.Superclass is not null) EndScope();
         CurrentClass = enclosingClass;
         return null;
     }
@@ -285,5 +311,6 @@ public enum FunctionType
 public enum ClassType
 {
     NONE = 0,
-    CLASS
+    CLASS,
+    SUBCLASS
 }

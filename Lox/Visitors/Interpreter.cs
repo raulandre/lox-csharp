@@ -69,7 +69,22 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 
     public object? VisitClassStmt(Stmt.Class stmt)
     {
+        object? superclass = null;
+        if (stmt.Superclass != null)
+        {
+            superclass = Evaluate(stmt.Superclass);
+
+            if (superclass is not LoxClass)
+                Program.Error(stmt.Superclass.Name, "Inherited entity must be a class.");
+        }
+
         Environment.Define(stmt.Name.Lexeme, null);
+
+        if (stmt.Superclass is not null)
+        {
+            Environment = new Environment(Environment);
+            Environment.Define("super", superclass);
+        }
 
         var methods = new Dictionary<string, LoxFunction>();
         foreach (var method in stmt.Methods)
@@ -78,7 +93,9 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
             methods[method.Name.Lexeme] = function;
         }
 
-        var @class = new LoxClass(stmt.Name.Lexeme, methods);
+        var @class = new LoxClass(stmt.Name.Lexeme, methods, (LoxClass)superclass!);
+        if (superclass is not null)
+            Environment = Environment.Enclosing!;
         Environment.Assign(stmt.Name, @class);
         return null;
     }
@@ -169,6 +186,18 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         var value = Evaluate(expr.Value);
         (@object as LoxInstance)!.Set(expr.Name, value);
         return value;
+    }
+
+    public object? VisitSuperExpr(Expr.Super expr)
+    {
+        var distance = Locals[expr];
+        var superclass = Environment.GetAt(distance, "super") as LoxClass;
+        var @object = Environment.GetAt(distance - 1, "this") as LoxInstance;
+
+        var method = superclass!.FindMethod(expr.Method.Lexeme)
+            ?? throw new RuntimeError(expr.Method, $"Undefined property '{expr.Method.Lexeme}'.");
+        
+        return method.Bind(@object!);
     }
 
     public object? VisitThisExpr(Expr.This expr)
