@@ -17,3 +17,18 @@ print "Enter your name: ";
 var greeting = read() |> greet;
 print "Enter your age: ";
 print read() |> number |> excite(greeting);
+
+class Foo {
+    init(x, y)
+    {
+        this.x = x;
+        this.y = y;
+    }
+
+    bar() {
+        return this.x + this.y;
+    }
+}
+
+print "Enter a number: ";
+print "Successor is: " + (read() |> number |> Foo(1)).bar();
