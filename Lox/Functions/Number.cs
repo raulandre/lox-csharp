@@ -11,7 +11,7 @@ public class Number : ICallable
         if (double.TryParse(args.First()?.ToString(), out var number))
             return number;
 
-        return double.NaN;    
+        return double.NaN;
     }
     public override string ToString()
     {
