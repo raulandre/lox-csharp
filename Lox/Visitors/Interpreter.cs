@@ -389,39 +389,36 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
         var left = Evaluate(expr.Left);
         var args = new List<object?> { left };
 
-        Expr.Call? rightCall = null;
-        if (expr.Right is Expr.Call)
+        switch (expr.Right)
         {
-            rightCall = expr.Right as Expr.Call; 
-        }
-        else if (expr.Right is Expr.Variable)
-        {
-            var right = Evaluate(expr.Right);
-            if (right is not ICallable)
-            {
-                Program.Error(expr.Operator, "Right-side of pipe must be a callable object.");
+            case Expr.Call rightCall:
+                args.AddRange(rightCall.Arguments.Select(Evaluate));
+                return InvokeCallable(rightCall.Callee, args, expr.Operator);
+
+            case Expr.Variable:
+                var right = Evaluate(expr.Right);
+                if (right is not ICallable callable)
+                {
+                    Program.Error(expr.Operator, "Right-side of pipe must be a callable object.");
+                    return null;
+                }
+                return callable.Call(this, args);
+
+            default:
+                Program.Error(expr.Operator, "Invalid right-hand side of pipe operator.");
                 return null;
-            }
-
-            var fn = right as ICallable;
-            return fn!.Call(this, args);
         }
-        else
-        {
-            Program.Error(expr.Operator, "Invalid right-hand side of pipe operator.");
-            return null;
-        }
-
-        args.AddRange(rightCall!.Arguments.Select(Evaluate));
-
-        var callee = Evaluate(rightCall.Callee) as ICallable;
-
-        if(callee!.Arity() != args.Count)
-        {
-            Program.Error(expr.Operator, $"Expected {callee!.Arity} args.");
-            return null;
-        }
-
-        return callee?.Call(this, args);
     }
+
+    private object? InvokeCallable(Expr calleeExpr, List<object?> args, Token operatorToken)
+    {
+        var callee = Evaluate(calleeExpr) as ICallable;
+        if (callee == null || callee.Arity() != args.Count)
+        {
+            Program.Error(operatorToken, $"Expected {callee?.Arity()} args, found {args.Count}.");
+            return null;
+        }
+        return callee.Call(this, args);
+    }
+
 }
