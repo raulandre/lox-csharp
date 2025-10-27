@@ -17,6 +17,8 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     public Interpreter()
     {
         Globals.Define("clock", new Clock());
+        Globals.Define("read", new Read());
+        Globals.Define("number", new Number());
     }
 
     public void Interpret(List<Stmt?> statements)
@@ -196,7 +198,7 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 
         var method = superclass!.FindMethod(expr.Method.Lexeme)
             ?? throw new RuntimeError(expr.Method, $"Undefined property '{expr.Method.Lexeme}'.");
-        
+
         return method.Bind(@object!);
     }
 
@@ -380,5 +382,46 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
             Globals.Assign(expr.Name, value);
         }
         return value;
+    }
+
+    public object? VisitPipeExpr(Expr.Pipe expr)
+    {
+        var left = Evaluate(expr.Left);
+        var args = new List<object?> { left };
+
+        Expr.Call? rightCall = null;
+        if (expr.Right is Expr.Call)
+        {
+            rightCall = expr.Right as Expr.Call; 
+        }
+        else if (expr.Right is Expr.Variable)
+        {
+            var right = Evaluate(expr.Right);
+            if (right is not ICallable)
+            {
+                Program.Error(expr.Operator, "Right-side of pipe must be a callable object.");
+                return null;
+            }
+
+            var fn = right as ICallable;
+            return fn!.Call(this, args);
+        }
+        else
+        {
+            Program.Error(expr.Operator, "Invalid right-hand side of pipe operator.");
+            return null;
+        }
+
+        args.AddRange(rightCall!.Arguments.Select(Evaluate));
+
+        var callee = Evaluate(rightCall.Callee) as ICallable;
+
+        if(callee!.Arity() != args.Count)
+        {
+            Program.Error(expr.Operator, $"Expected {callee!.Arity} args.");
+            return null;
+        }
+
+        return callee?.Call(this, args);
     }
 }

@@ -1,17 +1,19 @@
-class A {
-    method() {
-        print "A method";
-    }
+fun greet(name)
+{
+    return "Hello " + name;
 }
 
-class B < A {
-    method() {
-        print "B method";
-    }
-    test() {
-        super.method();
-    }
+fun excite(level, greeting)
+{
+    if(level <= 0)
+        return greeting;
+    if(level > 150)
+        return "No one is this old!";
+    
+    return excite(level - 1, greeting + "!");
 }
 
-class C < B { }
-C().test();
+print "Enter your name: ";
+var greeting = read() |> greet;
+print "Enter your age: ";
+print read() |> number |> excite(greeting);

@@ -257,13 +257,27 @@ public class Parser(List<Token> tokens)
 
     private Expr And()
     {
-        var expr = Equality();
+        var expr = Pipe();
 
         while (Match(AND))
         {
             var @operator = Previous();
-            var right = Equality();
+            var right = Pipe();
             expr = new Expr.Logical(expr, @operator, right);
+        }
+
+        return expr;
+    }
+
+    private Expr Pipe()
+    {
+        var expr = Equality();
+
+        while (Match(PIPE))
+        {
+            var @operator = Previous();
+            var right = Equality();
+            expr = new Expr.Pipe(@operator, expr, right);
         }
 
         return expr;

@@ -82,6 +82,12 @@ public class Scanner(string source)
                 else
                     AddToken(SLASH);
                 break;
+            case '|':
+                if (Match('>'))
+                    AddToken(PIPE);
+                else
+                    Program.Error(Line, $"Unexpected character '{c}'.");
+                break;
             case ' ':
             case '\r':
             case '\t':

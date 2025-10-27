@@ -20,6 +20,7 @@ AST.DefineAST(outputDir, "Expr",
     "Super : Token keyword, Token method",
     "This: Token keyword",
     "Unary : Token @operator, Expr right",
+    "Pipe : Token @operator, Expr left, Expr right",
     "Variable : Token name"
 ]);
 

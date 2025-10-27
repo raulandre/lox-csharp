@@ -216,6 +216,13 @@ public class Resolver(Interpreter interpreter) : Expr.IVisitor<object?>, Stmt.IV
         return null;
     }
 
+    public object? VisitPipeExpr(Expr.Pipe expr)
+    {
+        Resolve(expr.Left);
+        Resolve(expr.Right);
+        return null;
+    }
+
     #region Helpers
 
     public void Resolve(List<Stmt?> statements)
