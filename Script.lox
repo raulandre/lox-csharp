@@ -7,7 +7,7 @@ fun excite(level, greeting)
 {
     if(level <= 0)
         return greeting;
-    if(level > 150)
+    if(level > 120)
         return "No one is this old!";
     
     return excite(level - 1, greeting + "!");
