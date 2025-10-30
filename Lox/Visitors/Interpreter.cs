@@ -196,7 +196,7 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
 
         var method = superclass!.FindMethod(expr.Method.Lexeme)
             ?? throw new RuntimeError(expr.Method, $"Undefined property '{expr.Method.Lexeme}'.");
-        
+
         return method.Bind(@object!);
     }
 
