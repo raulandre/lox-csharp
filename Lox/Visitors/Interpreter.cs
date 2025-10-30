@@ -284,6 +284,7 @@ public class Interpreter : Expr.IVisitor<object?>, Stmt.IVisitor<object?>
     )
     {
         if (left is double n1 && right is double n2) return (n1, n2);
+        if (left is long l1 && right is long l2) return (l1, l2);
         throw new RuntimeError(@operator, "Operands must be numbers.");
     }
 
