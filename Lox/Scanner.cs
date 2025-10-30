@@ -145,7 +145,7 @@ public class Scanner(string source)
 
     private void Identifier()
     {
-        while (char.IsLetter(Peek()) || Peek() == '_') Advance();
+        while (char.IsLetterOrDigit(Peek()) || Peek() == '_') Advance();
         var text = Source[Start..Current];
         if (!Keywords.TryGetValue(text, out var type))
             type = IDENTIFIER;
