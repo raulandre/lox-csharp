@@ -1,0 +1,82 @@
+[
+ {
+  "directory": "/Users/raulandre/dev/Lox/Clox",
+  "arguments": [
+   "gcc",
+   "-c",
+   "-Wall",
+   "-fPIC",
+   "-pedantic",
+   "-ggdb",
+   "-I./include/",
+   "src/chunk.c",
+   "-o",
+   "bin/chunk.o"
+  ],
+  "file": "src/chunk.c"
+ },
+ {
+  "directory": "/Users/raulandre/dev/Lox/Clox",
+  "arguments": [
+   "gcc",
+   "-c",
+   "-Wall",
+   "-fPIC",
+   "-pedantic",
+   "-ggdb",
+   "-I./include/",
+   "src/mem.c",
+   "-o",
+   "bin/mem.o"
+  ],
+  "file": "src/mem.c"
+ },
+ {
+  "directory": "/Users/raulandre/dev/Lox/Clox",
+  "arguments": [
+   "gcc",
+   "-c",
+   "-Wall",
+   "-fPIC",
+   "-pedantic",
+   "-ggdb",
+   "-I./include/",
+   "src/debug.c",
+   "-o",
+   "bin/debug.o"
+  ],
+  "file": "src/debug.c"
+ },
+ {
+  "directory": "/Users/raulandre/dev/Lox/Clox",
+  "arguments": [
+   "gcc",
+   "-c",
+   "-Wall",
+   "-fPIC",
+   "-pedantic",
+   "-ggdb",
+   "-I./include/",
+   "src/value.c",
+   "-o",
+   "bin/value.o"
+  ],
+  "file": "src/value.c"
+ },
+ {
+  "directory": "/Users/raulandre/dev/Lox/Clox",
+  "arguments": [
+   "gcc",
+   "-Wall",
+   "-fPIC",
+   "-pedantic",
+   "-ggdb",
+   "-I./include/",
+   "src/main.c",
+   "bin/*.o",
+   "-o",
+   "bin/clox"
+  ],
+  "file": "src/main.c"
+ }
+]
