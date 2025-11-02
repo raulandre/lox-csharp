@@ -4,7 +4,7 @@ INCLUDE=-I./include/
 LDFLAGS=
 OUT=bin
 
-TARGETS = chunk.o mem.o debug.o value.o
+TARGETS = chunk.o mem.o debug.o value.o vm.o
 
 .PHONY: makebin clean run
 all: makebin clox
@@ -25,6 +25,9 @@ debug.o: src/debug.c
 	$(CC) -c $(CFLAGS) $(INCLUDE) $^ $(LDFLAGS) -o $(OUT)/$@
 
 value.o: src/value.c
+	$(CC) -c $(CFLAGS) $(INCLUDE) $^ $(LDFLAGS) -o $(OUT)/$@
+
+vm.o: src/vm.c
 	$(CC) -c $(CFLAGS) $(INCLUDE) $^ $(LDFLAGS) -o $(OUT)/$@
 
 makebin:

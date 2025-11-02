@@ -1,4 +1,5 @@
 #include "chunk.h"
+#include "mem.h"
 
 #include <stdlib.h>
 
