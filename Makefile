@@ -13,5 +13,5 @@ astgen: ASTGen/*.cs
 lox: 
 	dotnet run --configuration Release --project Lox $(CURDIR)/$(TEST_SCRIPT)
 
-clox: clox/src/*.c
-	make -C clox/
+clox: Clox/src/*.c
+	make -C Clox/
