@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 static void repl(void);
 static void runFile(const char *path);
@@ -30,21 +32,19 @@ int main(int argc, char *argv[])
 
 static void repl(void) {
   char *line = NULL;
-  size_t linecap = 0;
   ssize_t linelen = 0;
 
   for(;;) {
-    printf("> ");
-    linelen = getline(&line, &linecap, stdin);
+    line = readline("> ");
+    linelen = strlen(line);
     if(!linelen) {
       printf("\n");
       break;
     }
 
     interpret(line);
+    free(line);
   }
-
-  free(line);
 }
 
 static void runFile(const char *path) {
